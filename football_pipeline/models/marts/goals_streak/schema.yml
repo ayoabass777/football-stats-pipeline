@@ -1,0 +1,87 @@
+version: 2
+
+models:
+  - name: mart_team_goal_streaks
+    description: >
+      Mart model that calculates current streaks for goals scored and conceded
+      by team, including venue-specific (home/away) and threshold-based streaks.
+    columns:
+      - name: fixture_id
+        description: Unique ID of the fixture
+        tests:
+          - not_null
+
+      - name: date
+        description: Date of the fixture
+        tests:
+          - not_null
+
+      - name: team_id
+        description: Unique identifier for the team
+        tests:
+          - not_null
+
+      - name: opponent_id
+        description: Unique identifier for the opponent team
+        tests:
+          - not_null
+
+      - name: venue
+        description: Whether the team played home or away
+        tests:
+          - accepted_values:
+              values: ['home', 'away']
+
+      - name: team_scored_over_0_5_streak
+        description: Number of consecutive matches the team scored at least 1 goal
+
+      - name: team_scored_over_1_5_streak
+        description: Number of consecutive matches the team scored at least 2 goals
+
+      - name: team_conceded_over_0_5_streak
+        description: Number of consecutive matches the team conceded at least 1 goal
+
+      - name: team_conceded_over_1_5_streak
+        description: Number of consecutive matches the team conceded at least 2 goals
+
+      - name: team_cleansheet_streak
+        description: Number of consecutive matches the team kept a clean sheet
+
+      - name: team_goalless_streak
+        description: Number of consecutive matches the team failed to score
+
+      - name: home_team_scored_over_0_5_streak
+        description: Home streak where team scored at least 1 goal
+
+      - name: home_team_scored_over_1_5_streak
+        description: Home streak where team scored at least 2 goals
+
+      - name: home_team_conceded_over_0_5_streak
+        description: Home streak where team conceded at least 1 goal
+
+      - name: home_team_conceded_over_1_5_streak
+        description: Home streak where team conceded at least 2 goals
+
+      - name: home_team_cleansheet_streak
+        description: Home streak of clean sheets
+
+      - name: home_team_goalless_streak
+        description: Home streak of not scoring any goal
+
+      - name: away_team_scored_over_0_5_streak
+        description: Away streak where team scored at least 1 goal
+
+      - name: away_team_scored_over_1_5_streak
+        description: Away streak where team scored at least 2 goals
+
+      - name: away_team_conceded_over_0_5_streak
+        description: Away streak where team conceded at least 1 goal
+
+      - name: away_team_conceded_over_1_5_streak
+        description: Away streak where team conceded at least 2 goals
+
+      - name: away_team_cleansheet_streak
+        description: Away streak of clean sheets
+
+      - name: away_team_goalless_streak
+        description: Away streak of not scoring any goal

@@ -1,0 +1,255 @@
+2025-03-20 14:36:43,840 - INFO: json file has been loaded into program
+2025-03-20 14:36:43,846 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-20 14:36:44,576 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues HTTP/11" 200 None
+2025-03-20 14:36:44,892 - INFO: api leagues info has been dumped into <_io.TextIOWrapper name='api_leagues_info.json' mode='w' encoding='UTF-8'>
+2025-03-22 07:30:31 - INFO: json file has been loaded into program
+2025-03-22 07:30:31 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-22 07:30:32 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=England&name=Premier+League HTTP/11" 200 None
+2025-03-22 07:30:32 - INFO: League ID for 'Premier League' in country 'England' was uploaded successfully
+2025-03-22 07:30:32 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-22 07:30:33 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Spain&name=La+Liga HTTP/11" 200 None
+2025-03-22 07:30:33 - INFO: League ID for 'La Liga' in country 'Spain' was uploaded successfully
+2025-03-22 07:30:33 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-22 07:30:33 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Germany&name=Bundesliga HTTP/11" 200 None
+2025-03-22 07:30:33 - INFO: League ID for 'Bundesliga' in country 'Germany' was uploaded successfully
+2025-03-22 07:30:33 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-22 07:30:33 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=France&name=Ligue+1 HTTP/11" 200 None
+2025-03-22 07:30:33 - INFO: League ID for 'Ligue 1' in country 'France' was uploaded successfully
+2025-03-22 07:30:33 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-22 07:30:34 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Italy&name=Seria+A HTTP/11" 200 None
+2025-03-22 07:30:34 - WARNING: No league found for params: {'country': 'Italy', 'name': 'Seria A'}
+2025-03-22 07:30:34 - WARNING: League ID not found for 'Seria A' in country'Italy'
+2025-03-22 07:30:34 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-22 07:30:34 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Portugal&name=Primeira+Liga HTTP/11" 200 None
+2025-03-22 07:30:34 - INFO: League ID for 'Primeira Liga' in country 'Portugal' was uploaded successfully
+2025-03-22 07:30:34 - INFO: api leagues info has been dumped into metadata_with_league_ids.json
+2025-03-23 16:07:08 - INFO: json file has been loaded into program
+2025-03-23 16:07:08 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:07:09 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=England&name=Premier+League HTTP/11" 200 None
+2025-03-23 16:07:09 - INFO: League ID for 'Premier League' in country 'England' was uploaded successfully
+2025-03-23 16:07:09 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:07:09 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Spain&name=La+Liga HTTP/11" 200 None
+2025-03-23 16:07:09 - INFO: League ID for 'La Liga' in country 'Spain' was uploaded successfully
+2025-03-23 16:07:09 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:07:10 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Germany&name=Bundesliga HTTP/11" 200 None
+2025-03-23 16:07:10 - INFO: League ID for 'Bundesliga' in country 'Germany' was uploaded successfully
+2025-03-23 16:07:10 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:07:10 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=France&name=Ligue+1 HTTP/11" 200 None
+2025-03-23 16:07:10 - INFO: League ID for 'Ligue 1' in country 'France' was uploaded successfully
+2025-03-23 16:07:10 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:07:10 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Italy&name=Serie+A HTTP/11" 200 None
+2025-03-23 16:07:10 - INFO: League ID for 'Serie A' in country 'Italy' was uploaded successfully
+2025-03-23 16:07:10 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:07:11 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Portugal&name=Primeira+Liga HTTP/11" 200 None
+2025-03-23 16:07:11 - INFO: League ID for 'Primeira Liga' in country 'Portugal' was uploaded successfully
+2025-03-23 16:07:11 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:07:11 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=39&season=2024 HTTP/11" 200 None
+2025-03-23 16:07:11 - INFO: Teams for the current season '2024' and league 'Premier League' added successfully
+2025-03-23 16:07:11 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:07:11 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=140&season=2024 HTTP/11" 200 None
+2025-03-23 16:07:11 - INFO: Teams for the current season '2024' and league 'La Liga' added successfully
+2025-03-23 16:07:11 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:07:11 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=78&season=2024 HTTP/11" 200 None
+2025-03-23 16:07:11 - INFO: Teams for the current season '2024' and league 'Bundesliga' added successfully
+2025-03-23 16:07:11 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:07:12 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=61&season=2024 HTTP/11" 200 None
+2025-03-23 16:07:12 - INFO: Teams for the current season '2024' and league 'Ligue 1' added successfully
+2025-03-23 16:07:12 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:07:12 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=135&season=2024 HTTP/11" 200 None
+2025-03-23 16:07:12 - WARNING: No teams found for params: {'league': 135, 'season': 2024}
+2025-03-23 16:07:12 - WARNING: teams for league 'Serie A' in season 2024 not found
+2025-03-23 16:07:12 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:07:12 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=94&season=2024 HTTP/11" 200 None
+2025-03-23 16:07:12 - WARNING: No teams found for params: {'league': 94, 'season': 2024}
+2025-03-23 16:07:12 - WARNING: teams for league 'Primeira Liga' in season 2024 not found
+2025-03-23 16:07:12 - INFO: api leagues info has been dumped into metadata_with_league_ids.json
+2025-03-23 16:11:32 - INFO: json file has been loaded into program
+2025-03-23 16:11:32 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:11:33 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=England&name=Premier+League HTTP/11" 200 None
+2025-03-23 16:11:33 - INFO: League ID for 'Premier League' in country 'England' was uploaded successfully
+2025-03-23 16:11:33 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:11:33 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Spain&name=La+Liga HTTP/11" 200 None
+2025-03-23 16:11:33 - INFO: League ID for 'La Liga' in country 'Spain' was uploaded successfully
+2025-03-23 16:11:33 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:11:34 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Germany&name=Bundesliga HTTP/11" 200 None
+2025-03-23 16:11:34 - INFO: League ID for 'Bundesliga' in country 'Germany' was uploaded successfully
+2025-03-23 16:11:34 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:11:34 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=France&name=Ligue+1 HTTP/11" 200 None
+2025-03-23 16:11:34 - INFO: League ID for 'Ligue 1' in country 'France' was uploaded successfully
+2025-03-23 16:11:34 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:11:35 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Italy&name=Serie+A HTTP/11" 200 None
+2025-03-23 16:11:35 - INFO: League ID for 'Serie A' in country 'Italy' was uploaded successfully
+2025-03-23 16:11:35 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:11:35 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Portugal&name=Primeira+Liga HTTP/11" 200 None
+2025-03-23 16:11:35 - INFO: League ID for 'Primeira Liga' in country 'Portugal' was uploaded successfully
+2025-03-23 16:11:35 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:11:35 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=39&season=2024 HTTP/11" 200 None
+2025-03-23 16:11:35 - INFO: Teams for the current season '2024' and league 'Premier League' added successfully
+2025-03-23 16:11:35 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:11:35 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=140&season=2024 HTTP/11" 200 None
+2025-03-23 16:11:35 - INFO: Teams for the current season '2024' and league 'La Liga' added successfully
+2025-03-23 16:11:35 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:11:36 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=78&season=2024 HTTP/11" 200 None
+2025-03-23 16:11:36 - INFO: Teams for the current season '2024' and league 'Bundesliga' added successfully
+2025-03-23 16:11:36 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:11:36 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=61&season=2024 HTTP/11" 200 None
+2025-03-23 16:11:36 - INFO: Teams for the current season '2024' and league 'Ligue 1' added successfully
+2025-03-23 16:11:36 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:11:37 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=135&season=2024 HTTP/11" 200 None
+2025-03-23 16:11:37 - WARNING: No teams found for params: {'league': 135, 'season': 2024}
+2025-03-23 16:11:37 - WARNING: teams for league 'Serie A' in season 2024 not found
+2025-03-23 16:11:37 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:11:37 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=94&season=2024 HTTP/11" 200 None
+2025-03-23 16:11:37 - WARNING: No teams found for params: {'league': 94, 'season': 2024}
+2025-03-23 16:11:37 - WARNING: teams for league 'Primeira Liga' in season 2024 not found
+2025-03-23 16:11:37 - INFO: api leagues info has been dumped into metadata_with_league_ids.json
+2025-03-23 16:20:03 - INFO: json file has been loaded into program
+2025-03-23 16:20:03 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:20:04 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=England&name=Premier+League HTTP/11" 200 None
+2025-03-23 16:20:04 - INFO: League ID for 'Premier League' in country 'England' was uploaded successfully
+2025-03-23 16:20:04 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:20:04 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Spain&name=La+Liga HTTP/11" 200 None
+2025-03-23 16:20:04 - INFO: League ID for 'La Liga' in country 'Spain' was uploaded successfully
+2025-03-23 16:20:04 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:20:04 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Germany&name=Bundesliga HTTP/11" 200 None
+2025-03-23 16:20:04 - INFO: League ID for 'Bundesliga' in country 'Germany' was uploaded successfully
+2025-03-23 16:20:04 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:20:04 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=France&name=Ligue+1 HTTP/11" 200 None
+2025-03-23 16:20:04 - INFO: League ID for 'Ligue 1' in country 'France' was uploaded successfully
+2025-03-23 16:20:04 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:20:05 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Italy&name=Serie+A HTTP/11" 200 None
+2025-03-23 16:20:05 - INFO: League ID for 'Serie A' in country 'Italy' was uploaded successfully
+2025-03-23 16:20:05 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:20:05 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Portugal&name=Primeira+Liga HTTP/11" 200 None
+2025-03-23 16:20:05 - INFO: League ID for 'Primeira Liga' in country 'Portugal' was uploaded successfully
+2025-03-23 16:20:05 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:20:05 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=39&season=2024 HTTP/11" 200 None
+2025-03-23 16:20:05 - INFO: Teams for the current season '2024' and league 'Premier League' added successfully
+2025-03-23 16:20:05 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:20:06 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=140&season=2024 HTTP/11" 200 None
+2025-03-23 16:20:06 - INFO: Teams for the current season '2024' and league 'La Liga' added successfully
+2025-03-23 16:20:06 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:20:06 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=78&season=2024 HTTP/11" 200 None
+2025-03-23 16:20:06 - INFO: Teams for the current season '2024' and league 'Bundesliga' added successfully
+2025-03-23 16:20:06 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:20:06 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=61&season=2024 HTTP/11" 200 None
+2025-03-23 16:20:06 - INFO: Teams for the current season '2024' and league 'Ligue 1' added successfully
+2025-03-23 16:20:06 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:20:07 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=135&season=2024 HTTP/11" 200 None
+2025-03-23 16:20:07 - WARNING: No teams found for params: {'league': 135, 'season': 2024}
+2025-03-23 16:20:07 - WARNING: teams for league 'Serie A' in season 2024 not found
+2025-03-23 16:20:07 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:20:07 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=94&season=2024 HTTP/11" 200 None
+2025-03-23 16:20:07 - WARNING: No teams found for params: {'league': 94, 'season': 2024}
+2025-03-23 16:20:07 - WARNING: teams for league 'Primeira Liga' in season 2024 not found
+2025-03-23 16:20:07 - INFO: api leagues info has been dumped into metadata_with_league_ids.json
+2025-03-23 16:21:01 - INFO: json file has been loaded into program
+2025-03-23 16:21:01 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:21:01 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=England&name=Premier+League HTTP/11" 200 None
+2025-03-23 16:21:01 - INFO: League ID for 'Premier League' in country 'England' was uploaded successfully
+2025-03-23 16:21:01 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:21:01 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Spain&name=La+Liga HTTP/11" 200 None
+2025-03-23 16:21:01 - INFO: League ID for 'La Liga' in country 'Spain' was uploaded successfully
+2025-03-23 16:21:01 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:21:02 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Germany&name=Bundesliga HTTP/11" 200 None
+2025-03-23 16:21:02 - INFO: League ID for 'Bundesliga' in country 'Germany' was uploaded successfully
+2025-03-23 16:21:02 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:21:02 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=France&name=Ligue+1 HTTP/11" 200 None
+2025-03-23 16:21:02 - INFO: League ID for 'Ligue 1' in country 'France' was uploaded successfully
+2025-03-23 16:21:02 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:21:02 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Italy&name=Serie+A HTTP/11" 200 None
+2025-03-23 16:21:02 - INFO: League ID for 'Serie A' in country 'Italy' was uploaded successfully
+2025-03-23 16:21:02 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:21:03 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Portugal&name=Primeira+Liga HTTP/11" 200 None
+2025-03-23 16:21:03 - INFO: League ID for 'Primeira Liga' in country 'Portugal' was uploaded successfully
+2025-03-23 16:21:03 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:21:03 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=39&season=2024 HTTP/11" 200 None
+2025-03-23 16:21:03 - INFO: Teams for the current season '2024' and league 'Premier League' added successfully
+2025-03-23 16:21:03 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:21:03 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=140&season=2024 HTTP/11" 200 None
+2025-03-23 16:21:03 - INFO: Teams for the current season '2024' and league 'La Liga' added successfully
+2025-03-23 16:21:03 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:21:03 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=78&season=2024 HTTP/11" 200 None
+2025-03-23 16:21:03 - INFO: Teams for the current season '2024' and league 'Bundesliga' added successfully
+2025-03-23 16:21:03 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:21:04 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=61&season=2024 HTTP/11" 200 None
+2025-03-23 16:21:04 - INFO: Teams for the current season '2024' and league 'Ligue 1' added successfully
+2025-03-23 16:21:04 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:21:04 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=135&season=2024 HTTP/11" 200 None
+2025-03-23 16:21:04 - WARNING: No teams found for params: {'league': 135, 'season': 2024}
+2025-03-23 16:21:04 - WARNING: teams for league 'Serie A' in season 2024 not found
+2025-03-23 16:21:04 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-23 16:21:04 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=94&season=2024 HTTP/11" 200 None
+2025-03-23 16:21:04 - WARNING: No teams found for params: {'league': 94, 'season': 2024}
+2025-03-23 16:21:04 - WARNING: teams for league 'Primeira Liga' in season 2024 not found
+2025-03-23 16:21:04 - INFO: api leagues info has been dumped into metadata_with_league_ids.json
+2025-03-24 12:09:05 - INFO: json file has been loaded into program
+2025-03-24 12:09:05 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-24 12:09:06 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=England&name=Premier+League HTTP/11" 200 None
+2025-03-24 12:09:06 - INFO: League ID for 'Premier League' in country 'England' was uploaded successfully
+2025-03-24 12:09:06 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-24 12:09:06 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Spain&name=La+Liga HTTP/11" 200 None
+2025-03-24 12:09:06 - INFO: League ID for 'La Liga' in country 'Spain' was uploaded successfully
+2025-03-24 12:09:06 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-24 12:09:06 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Germany&name=Bundesliga HTTP/11" 200 None
+2025-03-24 12:09:06 - INFO: League ID for 'Bundesliga' in country 'Germany' was uploaded successfully
+2025-03-24 12:09:06 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-24 12:09:07 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=France&name=Ligue+1 HTTP/11" 200 None
+2025-03-24 12:09:07 - INFO: League ID for 'Ligue 1' in country 'France' was uploaded successfully
+2025-03-24 12:09:07 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-24 12:09:07 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Italy&name=Serie+A HTTP/11" 200 None
+2025-03-24 12:09:07 - INFO: League ID for 'Serie A' in country 'Italy' was uploaded successfully
+2025-03-24 12:09:07 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-24 12:09:07 - DEBUG: https://v3.football.api-sports.io:443 "GET /leagues?country=Portugal&name=Primeira+Liga HTTP/11" 200 None
+2025-03-24 12:09:07 - INFO: League ID for 'Primeira Liga' in country 'Portugal' was uploaded successfully
+2025-03-24 12:09:07 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-24 12:09:08 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=39&season=2024 HTTP/11" 200 None
+2025-03-24 12:09:08 - INFO: Teams for the current season '2024' and league 'Premier League' added successfully
+2025-03-24 12:09:08 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-24 12:09:08 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=140&season=2024 HTTP/11" 200 None
+2025-03-24 12:09:08 - INFO: Teams for the current season '2024' and league 'La Liga' added successfully
+2025-03-24 12:09:08 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-24 12:09:08 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=78&season=2024 HTTP/11" 200 None
+2025-03-24 12:09:08 - INFO: Teams for the current season '2024' and league 'Bundesliga' added successfully
+2025-03-24 12:09:08 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-24 12:09:09 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=61&season=2024 HTTP/11" 200 None
+2025-03-24 12:09:09 - INFO: Teams for the current season '2024' and league 'Ligue 1' added successfully
+2025-03-24 12:09:09 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-24 12:09:09 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=135&season=2024 HTTP/11" 200 None
+2025-03-24 12:09:09 - WARNING: No teams found for params: {'league': 135, 'season': 2024}
+2025-03-24 12:09:09 - WARNING: teams for league 'Serie A' in season 2024 not found
+2025-03-24 12:09:09 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-24 12:09:10 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=94&season=2024 HTTP/11" 200 None
+2025-03-24 12:09:10 - WARNING: No teams found for params: {'league': 94, 'season': 2024}
+2025-03-24 12:09:10 - WARNING: teams for league 'Primeira Liga' in season 2024 not found
+2025-03-24 12:09:10 - INFO: api leagues info has been dumped into metadata_with_league_ids.json
+2025-03-24 12:15:33 - INFO: json file has been loaded into program
+2025-03-24 12:15:33 - INFO: Skipping league 'Premier League - teams already fetched
+2025-03-24 12:15:33 - INFO: Skipping league 'La Liga - teams already fetched
+2025-03-24 12:15:33 - INFO: Skipping league 'Bundesliga - teams already fetched
+2025-03-24 12:15:33 - INFO: Skipping league 'Ligue 1 - teams already fetched
+2025-03-24 12:15:33 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-24 12:15:33 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=135&season=2024 HTTP/11" 200 None
+2025-03-24 12:15:33 - INFO: Teams for the current season '2024' and league 'Serie A' added successfully
+2025-03-24 12:15:33 - DEBUG: Starting new HTTPS connection (1): v3.football.api-sports.io:443
+2025-03-24 12:15:34 - DEBUG: https://v3.football.api-sports.io:443 "GET /teams?league=94&season=2024 HTTP/11" 200 None
+2025-03-24 12:15:34 - INFO: Teams for the current season '2024' and league 'Primeira Liga' added successfully
+2025-03-24 12:15:34 - INFO: api leagues info has been dumped into metadata_with_league_ids.json
+2025-03-29 14:10:01 - INFO: json file has been loaded into program
+2025-03-29 14:10:01 - INFO: Loaded metadata from metadata_with_league_ids.json
+2025-03-29 14:10:01 - INFO: 6 leagues already have teams.
+2025-03-29 14:10:01 - INFO: Skipping league 'Premier League - teams already fetched
+2025-03-29 14:10:01 - INFO: Skipping league 'La Liga - teams already fetched
+2025-03-29 14:10:01 - INFO: Skipping league 'Bundesliga - teams already fetched
+2025-03-29 14:10:01 - INFO: Skipping league 'Ligue 1 - teams already fetched
+2025-03-29 14:10:01 - INFO: Skipping league 'Serie A - teams already fetched
+2025-03-29 14:10:01 - INFO: Skipping league 'Primeira Liga - teams already fetched
+2025-03-29 14:10:10 - INFO: json file has been loaded into program
+2025-03-29 14:10:10 - INFO: Loaded metadata from metadata_with_league_ids.json
+2025-03-29 14:10:10 - INFO: 6 leagues already have teams.
+2025-03-29 14:10:10 - INFO: Skipping league 'Premier League - teams already fetched
+2025-03-29 14:10:10 - INFO: Skipping league 'La Liga - teams already fetched
+2025-03-29 14:10:10 - INFO: Skipping league 'Bundesliga - teams already fetched
+2025-03-29 14:10:10 - INFO: Skipping league 'Ligue 1 - teams already fetched
+2025-03-29 14:10:10 - INFO: Skipping league 'Serie A - teams already fetched
+2025-03-29 14:10:10 - INFO: Skipping league 'Primeira Liga - teams already fetched

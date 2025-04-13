@@ -1,0 +1,97 @@
+2025-03-31 12:43:02 - INFO :Loaded data/fixtures/england/premier-league/2024/fixtures.json with 380 fixtures
+2025-03-31 12:43:02 - INFO :Loaded data/fixtures/france/ligue-1/2024/fixtures.json with 306 fixtures
+2025-03-31 12:43:02 - INFO :Loaded data/fixtures/spain/la-liga/2024/fixtures.json with 380 fixtures
+2025-03-31 12:43:02 - INFO :Loaded data/fixtures/germany/bundesliga/2024/fixtures.json with 306 fixtures
+2025-03-31 12:43:02 - INFO :Loaded data/fixtures/portugal/primeira-liga/2024/fixtures.json with 306 fixtures
+2025-03-31 12:43:02 - INFO :Loaded data/fixtures/italy/serie-a/2024/fixtures.json with 380 fixtures
+2025-03-31 12:43:23 - INFO :Loaded data/fixtures/england/premier-league/2024/fixtures.json with 380 fixtures
+2025-03-31 12:43:23 - INFO :Loaded data/fixtures/france/ligue-1/2024/fixtures.json with 306 fixtures
+2025-03-31 12:43:23 - INFO :Loaded data/fixtures/spain/la-liga/2024/fixtures.json with 380 fixtures
+2025-03-31 12:43:23 - INFO :Loaded data/fixtures/germany/bundesliga/2024/fixtures.json with 306 fixtures
+2025-03-31 12:43:23 - INFO :Loaded data/fixtures/portugal/primeira-liga/2024/fixtures.json with 306 fixtures
+2025-03-31 12:43:23 - INFO :Loaded data/fixtures/italy/serie-a/2024/fixtures.json with 380 fixtures
+2025-04-02 12:03:57 - INFO :Loaded data/fixtures/england/premier-league/2024/fixtures.json with 380 fixtures
+2025-04-02 12:03:57 - INFO :Loaded data/fixtures/france/ligue-1/2024/fixtures.json with 306 fixtures
+2025-04-02 12:03:57 - INFO :Loaded data/fixtures/spain/la-liga/2024/fixtures.json with 380 fixtures
+2025-04-02 12:03:57 - INFO :Loaded data/fixtures/germany/bundesliga/2024/fixtures.json with 306 fixtures
+2025-04-02 12:03:57 - INFO :Loaded data/fixtures/portugal/primeira-liga/2024/fixtures.json with 306 fixtures
+2025-04-02 12:03:57 - INFO :Loaded data/fixtures/italy/serie-a/2024/fixtures.json with 380 fixtures
+2025-04-02 12:03:57 - WARNING :Found 2058 duplicate fixture(s)
+2025-04-02 12:03:57 - INFO :All duplicates have been removed successfully
+2025-04-02 12:03:57 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-02 12:03:58 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-02 12:05:06 - INFO :Loaded data/fixtures/england/premier-league/2024/fixtures.json with 380 fixtures
+2025-04-02 12:05:06 - INFO :Loaded data/fixtures/france/ligue-1/2024/fixtures.json with 306 fixtures
+2025-04-02 12:05:06 - INFO :Loaded data/fixtures/spain/la-liga/2024/fixtures.json with 380 fixtures
+2025-04-02 12:05:06 - INFO :Loaded data/fixtures/germany/bundesliga/2024/fixtures.json with 306 fixtures
+2025-04-02 12:05:06 - INFO :Loaded data/fixtures/portugal/primeira-liga/2024/fixtures.json with 306 fixtures
+2025-04-02 12:05:06 - INFO :Loaded data/fixtures/italy/serie-a/2024/fixtures.json with 380 fixtures
+2025-04-02 12:05:06 - WARNING :Found 2058 duplicate fixture(s)
+2025-04-02 12:05:06 - INFO :All duplicates have been removed successfully
+2025-04-02 12:05:06 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-02 12:05:06 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-02 15:23:33 - INFO :Loaded data/fixtures/england/premier-league/2024/fixtures.json with 380 fixtures
+2025-04-02 15:23:33 - INFO :Loaded data/fixtures/france/ligue-1/2024/fixtures.json with 306 fixtures
+2025-04-02 15:23:33 - INFO :Loaded data/fixtures/spain/la-liga/2024/fixtures.json with 380 fixtures
+2025-04-02 15:23:33 - INFO :Loaded data/fixtures/germany/bundesliga/2024/fixtures.json with 306 fixtures
+2025-04-02 15:23:33 - INFO :Loaded data/fixtures/portugal/primeira-liga/2024/fixtures.json with 306 fixtures
+2025-04-02 15:23:33 - INFO :Loaded data/fixtures/italy/serie-a/2024/fixtures.json with 380 fixtures
+2025-04-02 15:23:33 - WARNING :Found 2058 duplicate fixture(s)
+2025-04-02 15:23:33 - INFO :All duplicates have been removed successfully
+2025-04-02 15:23:33 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-02 15:23:33 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-02 15:27:50 - INFO :Loaded data/fixtures/england/premier-league/2024/fixtures.json with 380 fixtures
+2025-04-02 15:27:50 - INFO :Loaded data/fixtures/france/ligue-1/2024/fixtures.json with 306 fixtures
+2025-04-02 15:27:50 - INFO :Loaded data/fixtures/spain/la-liga/2024/fixtures.json with 380 fixtures
+2025-04-02 15:27:50 - INFO :Loaded data/fixtures/germany/bundesliga/2024/fixtures.json with 306 fixtures
+2025-04-02 15:27:50 - INFO :Loaded data/fixtures/portugal/primeira-liga/2024/fixtures.json with 306 fixtures
+2025-04-02 15:27:50 - INFO :Loaded data/fixtures/italy/serie-a/2024/fixtures.json with 380 fixtures
+2025-04-02 15:27:50 - WARNING :Found 2058 duplicate fixture(s)
+2025-04-02 15:27:50 - INFO :All duplicates have been removed successfully
+2025-04-02 15:27:50 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-02 15:27:50 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-03 16:44:25 - INFO :Loaded data/fixtures/england/premier-league/2024/fixtures.json with 380 fixtures
+2025-04-03 16:44:25 - INFO :Loaded data/fixtures/france/ligue-1/2024/fixtures.json with 306 fixtures
+2025-04-03 16:44:25 - INFO :Loaded data/fixtures/spain/la-liga/2024/fixtures.json with 380 fixtures
+2025-04-03 16:44:25 - INFO :Loaded data/fixtures/germany/bundesliga/2024/fixtures.json with 306 fixtures
+2025-04-03 16:44:25 - INFO :Loaded data/fixtures/portugal/primeira-liga/2024/fixtures.json with 306 fixtures
+2025-04-03 16:44:25 - INFO :Loaded data/fixtures/italy/serie-a/2024/fixtures.json with 380 fixtures
+2025-04-03 16:44:25 - WARNING :Found 2058 duplicate fixture(s)
+2025-04-03 16:44:25 - INFO :All duplicates have been removed successfully
+2025-04-03 16:44:25 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-03 16:44:25 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-03 16:46:01 - INFO :Loaded data/fixtures/england/premier-league/2024/fixtures.json with 380 fixtures
+2025-04-03 16:46:01 - INFO :Loaded data/fixtures/france/ligue-1/2024/fixtures.json with 306 fixtures
+2025-04-03 16:46:01 - INFO :Loaded data/fixtures/spain/la-liga/2024/fixtures.json with 380 fixtures
+2025-04-03 16:46:01 - INFO :Loaded data/fixtures/germany/bundesliga/2024/fixtures.json with 306 fixtures
+2025-04-03 16:46:01 - INFO :Loaded data/fixtures/portugal/primeira-liga/2024/fixtures.json with 306 fixtures
+2025-04-03 16:46:01 - INFO :Loaded data/fixtures/italy/serie-a/2024/fixtures.json with 380 fixtures
+2025-04-03 16:46:01 - WARNING :Found 2058 duplicate fixture(s)
+2025-04-03 16:46:01 - INFO :All duplicates have been removed successfully
+2025-04-03 16:46:02 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-03 16:46:02 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-03 16:46:02 - ERROR :Failed to load data into table 'raw_fixtures': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 failed: FATAL:  role "ayoabass" does not exist
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-04-03 16:48:43 - INFO :Loaded data/fixtures/england/premier-league/2024/fixtures.json with 380 fixtures
+2025-04-03 16:48:43 - INFO :Loaded data/fixtures/france/ligue-1/2024/fixtures.json with 306 fixtures
+2025-04-03 16:48:43 - INFO :Loaded data/fixtures/spain/la-liga/2024/fixtures.json with 380 fixtures
+2025-04-03 16:48:43 - INFO :Loaded data/fixtures/germany/bundesliga/2024/fixtures.json with 306 fixtures
+2025-04-03 16:48:43 - INFO :Loaded data/fixtures/portugal/primeira-liga/2024/fixtures.json with 306 fixtures
+2025-04-03 16:48:43 - INFO :Loaded data/fixtures/italy/serie-a/2024/fixtures.json with 380 fixtures
+2025-04-03 16:48:43 - WARNING :Found 2058 duplicate fixture(s)
+2025-04-03 16:48:43 - INFO :All duplicates have been removed successfully
+2025-04-03 16:48:43 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-03 16:48:43 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-03 16:48:43 - INFO :Loaded 2058 rows into raw_fixtures successfully
+2025-04-03 16:49:51 - INFO :Loaded data/fixtures/england/premier-league/2024/fixtures.json with 380 fixtures
+2025-04-03 16:49:51 - INFO :Loaded data/fixtures/france/ligue-1/2024/fixtures.json with 306 fixtures
+2025-04-03 16:49:51 - INFO :Loaded data/fixtures/spain/la-liga/2024/fixtures.json with 380 fixtures
+2025-04-03 16:49:51 - INFO :Loaded data/fixtures/germany/bundesliga/2024/fixtures.json with 306 fixtures
+2025-04-03 16:49:51 - INFO :Loaded data/fixtures/portugal/primeira-liga/2024/fixtures.json with 306 fixtures
+2025-04-03 16:49:51 - INFO :Loaded data/fixtures/italy/serie-a/2024/fixtures.json with 380 fixtures
+2025-04-03 16:49:51 - WARNING :Found 2058 duplicate fixture(s)
+2025-04-03 16:49:51 - INFO :All duplicates have been removed successfully
+2025-04-03 16:49:51 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-03 16:49:51 - INFO :Cleaned_fixtures csv file has been stored
+2025-04-03 16:49:52 - INFO :Loaded 2058 rows into raw_fixtures successfully

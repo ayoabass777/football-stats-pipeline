@@ -1,0 +1,61 @@
+version: 2
+
+sources:
+  - name: raw
+    database: football_betting
+    schema: raw
+    tables: 
+      - name: raw_fixtures
+        description: Raw fixture data loaded from the API
+        columns:
+          - name: fixture_id
+            description: Unique ID for each match
+            tests:
+              - not_null
+              - unique
+          - name: date
+            description: Match kickoff date
+            tests:
+              - not_null
+
+          - name: season
+            description: the season match was played
+            tests: 
+              - not_null
+
+          - name: country
+            description: Country where the match is played
+            tests:
+              - not_null
+
+          - name: league_id
+            description: the assigned league identifier from the api
+            tests:
+              - not_null
+
+          - name: home_team_id
+            description: ID of the home team
+            tests:
+              - not_null
+      
+          - name: away_team_id
+            description: ID of the away team
+            tests:
+              - not_null
+
+          - name: home_fulltime_result
+            description: fulltime result of home team
+            tests:
+              - accepted_values:
+                  values: ['win', 'draw', 'loss', null]
+          
+          - name: away_fulltime_result
+            description: fulltime result of away team
+            tests:
+              - accepted_values:
+                  values: ['win', 'draw', 'loss', null]
+
+          - name: status
+            description: Match status
+            tests:
+              - not_null

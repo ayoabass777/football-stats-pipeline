@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: mart_team_result_streaks
+    description: Contains match-by-match team performance with 10 games rolling streaks and active streaks
+    columns:
+      - name: fixture_id
+        tests: 
+          - not_null
+      - name: team_id
+        tests:
+          - not_null
+      - name: match_number
+        tests:
+          - not_null

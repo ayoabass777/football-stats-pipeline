@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: ayoabass
+      POSTGRES_PASSWORD: tamzynana
+      POSTGRES_DB: football_betting
+    ports:
+      - "5433:5432"
+    networks:
+      - etl_network
+
+etl:
+  build: .
+  container_name: etl_script
+  depends_on :
+    - postgres
+  environment:
+    DB_NAME: football_betting
+    DB_USER: ayoabass
+    DB_PASSWORD: tamzynana
+    DB_HOST: postgres
+    DB_PORT: 5433
+  networks:
+    - etl_network
+
+networks:
+  etl_network:
+    driver: bridge

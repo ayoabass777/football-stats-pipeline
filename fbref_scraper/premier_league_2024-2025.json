@@ -1,0 +1,507 @@
+{
+    "league": "premier_league",
+    "country": "England",
+    "season": "2024-2025",
+    "teams": [
+        {
+            "team": "Liverpool",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Arsenal",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Nott'ham Forest",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Manchester City",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Bournemouth",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Chelsea",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Newcastle Utd",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Fulham",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Aston Villa",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Brighton",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Brentford",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Tottenham",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Crystal Palace",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Everton",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Manchester Utd",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "West Ham",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Wolves",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Ipswich Town",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Leicester City",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        },
+        {
+            "team": "Southampton",
+            "matches_played": 0,
+            "wins": {
+                "total": 0
+            },
+            "draws": {
+                "total": 0
+            },
+            "losses": {
+                "total": 0
+            },
+            "goals_for": {
+                "total": 0
+            },
+            "goals_against": {
+                "total": 0
+            },
+            "xG": {
+                "total": 0.0
+            },
+            "xGA": {
+                "total": 0.0
+            }
+        }
+    ]
+}

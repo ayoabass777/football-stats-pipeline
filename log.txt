@@ -1,0 +1,49 @@
+2025-03-15 06:51:17 - DEBUG: connected to POSTgreSQL at localhost:5433
+2025-03-15 06:51:17 - INFO: Inserted country 'England' with id 2.
+2025-03-15 06:51:17 - INFO: Inserted league 'Premier League' with id 2
+2025-03-15 06:51:17 - ERROR:  Error inserting countries from metadata: ON CONFLICT DO UPDATE requires inference specification or constraint name
+LINE 4:                     ON CONFLICT DO UPDATE SET is_current = E...
+                            ^
+HINT:  For example, ON CONFLICT (column_name).
+
+2025-03-15 06:51:59 - DEBUG: connected to POSTgreSQL at localhost:5433
+2025-03-15 06:51:59 - INFO: Inserted country 'England' with id 3.
+2025-03-15 06:51:59 - INFO: Inserted league 'Premier League' with id 3
+2025-03-15 06:51:59 - ERROR:  Error inserting countries from metadata: ON CONFLICT DO UPDATE requires inference specification or constraint name
+LINE 4:                     ON CONFLICT DO UPDATE SET is_current = E...
+                            ^
+HINT:  For example, ON CONFLICT (column_name).
+
+2025-03-15 06:52:07 - DEBUG: connected to POSTgreSQL at localhost:5433
+2025-03-15 06:52:07 - INFO: Inserted country 'England' with id 4.
+2025-03-15 06:52:07 - INFO: Inserted league 'Premier League' with id 4
+2025-03-15 06:52:07 - ERROR:  Error inserting countries from metadata: 'psycopg2.extensions.cursor' object has no attribute 'fecthone'
+2025-03-15 06:53:28 - DEBUG: connected to POSTgreSQL at localhost:5433
+2025-03-15 06:53:28 - INFO: Inserted country 'England' with id 5.
+2025-03-15 06:53:28 - INFO: Inserted league 'Premier League' with id 5
+2025-03-15 06:53:28 - ERROR:  Error inserting countries from metadata: 'psycopg2.extensions.cursor' object has no attribute 'fecthone'
+2025-03-15 06:53:55 - DEBUG: connected to POSTgreSQL at localhost:5433
+2025-03-15 06:53:55 - INFO: Inserted country 'England' with id 6.
+2025-03-15 06:53:55 - INFO: Inserted league 'Premier League' with id 6
+2025-03-15 06:53:55 - INFO: Inserted Season: 2024, current_status: True, id: 3
+2025-03-15 06:53:55 - INFO: Inserted Season: 2023, current_status: False, id: 4
+2025-03-15 06:53:55 - INFO: Inserted country 'Spain' with id 7.
+2025-03-15 06:53:55 - INFO: Inserted league 'La Liga' with id 7
+2025-03-15 06:53:55 - INFO: Inserted Season: 2024, current_status: True, id: 3
+2025-03-15 06:53:55 - INFO: Inserted Season: 2023, current_status: False, id: 4
+2025-03-15 06:53:55 - INFO: Inserted country 'Germany' with id 8.
+2025-03-15 06:53:55 - INFO: Inserted league 'Bundesliga' with id 8
+2025-03-15 06:53:55 - INFO: Inserted Season: 2024, current_status: True, id: 3
+2025-03-15 06:53:55 - INFO: Inserted Season: 2023, current_status: False, id: 4
+2025-03-15 06:53:55 - INFO: Inserted country 'France' with id 9.
+2025-03-15 06:53:55 - INFO: Inserted league 'Ligue 1' with id 9
+2025-03-15 06:53:55 - INFO: Inserted Season: 2024, current_status: True, id: 3
+2025-03-15 06:53:55 - INFO: Inserted Season: 2023, current_status: False, id: 4
+2025-03-15 06:53:55 - INFO: Inserted country 'Italy' with id 10.
+2025-03-15 06:53:55 - INFO: Inserted league 'Seria A' with id 10
+2025-03-15 06:53:55 - INFO: Inserted Season: 2024, current_status: True, id: 3
+2025-03-15 06:53:55 - INFO: Inserted Season: 2023, current_status: False, id: 4
+2025-03-15 06:53:55 - INFO: Inserted country 'Portugal' with id 11.
+2025-03-15 06:53:55 - INFO: Inserted league 'Primeira Liga' with id 11
+2025-03-15 06:53:55 - INFO: Inserted Season: 2024, current_status: True, id: 3
+2025-03-15 06:53:55 - INFO: Inserted Season: 2023, current_status: False, id: 4

@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: int_team_match_results
+    description: Intermediate model transforming completed fixtures into team-level match results (home and away perspective).
+    columns:
+      - name: fixture_id
+        description: Unique match identifier
+        tests:
+          - not_null
+
+      - name: team_id
+        description: Team that played the match
+        tests:
+          - not_null
+
+      - name: opponent_id
+        description: Opponent in the match
+        tests:
+          - not_null
+
+      - name: result
+        description: Match result from team’s perspective (win/draw/loss)
+        tests:
+          - accepted_values:
+              values: ['win', 'draw', 'loss']
+
+      - name: venue
+        description: Whether the team played at home or away
+        tests:
+          - accepted_values:
+              values: ['home', 'away']
+
+  - name: int_team_match_goals
+    description: Intermediate model breaking down goals scored and conceded by team in each match.
+    columns:
+      - name: fixture_id
+        description: Unique match identifier
+        tests:
+          - not_null
+
+      - name: team_id
+        description: Team in the match
+        tests:
+          - not_null
+
+      - name: opponent_id
+        description: Opponent in the match
+        tests:
+          - not_null
+
+      - name: goals_scored
+        description: Number of goals scored by the team
+        tests:
+          - not_null
+
+      - name: goals_conceded
+        description: Number of goals conceded by the team
+        tests:
+          - not_null
+
+      - name: venue
+        description: Home or away status
+        tests:
+          - accepted_values:
+              values: ['home', 'away']
