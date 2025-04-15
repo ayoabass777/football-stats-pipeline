@@ -132,7 +132,7 @@ def load_to_db (df, table_name="raw_fixtures", if_exists="replace"):
     engine = create_engine('postgresql+psycopg2://ayoabass:tamzynana@localhost:5433/football_betting')
     
     try:
-        df.to_sql(table_name, engine, if_exists= if_exists, index=False)
+        df.to_sql(table_name, engine, if_exists= if_exists, schema='raw' index=False)
         logging.info(f"Loaded {len(df)} rows into {table_name} successfully")
 
         #first 10 rows in fixtures
