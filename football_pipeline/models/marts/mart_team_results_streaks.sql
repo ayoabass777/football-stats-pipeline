@@ -5,224 +5,72 @@ WITH base AS (
     FROM {{ ref('int_team_match_results')}}
 ),
 
-ranked AS (
-    SELECT *,
-        ROW_NUMBER() OVER(PARTITION BY team_id ORDER BY date) AS match_number,
-        CASE WHEN result = 'win' THEN 1 ELSE 0 END AS is_win,
-        CASE WHEN result = 'draw' THEN 1 ELSE 0 END AS is_draw,
-        CASE WHEN result = 'loss' THEN 1 ELSE 0 END AS is_loss,
-        CASE WHEN result != 'win' THEN 1 ELSE 0 END AS is_loss_or_draw,
-        CASE WHEN result != 'loss' THEN 1 ELSE 0 END AS is_win_or_draw
-    FROM base
+-- Unpivot all indicators into (team_id, date, fixtures,..., event_name, event_flag)
+event_indicator AS (
+    SELECT 
+        b.fixture_id,
+        b.date,
+        b.team_id,
+        b.team_name,
+        b.result,
+        ev.event_name AS event_name,
+        --convert ev_flag to int from boolean
+        ev.event_flag:: int AS event_flag
+    FROM base AS b
+    CROSS JOIN LATERAL (
+        VALUES
+            ('win', b.result = 'win'),
+            ('draw', b.result = 'draw'),
+            ('loss', b.result = 'loss'),
+
+            ('win_or_draw', b.result in ('win','draw')),
+            ('loss_or_draw', b.result in ('loss','draw'))
+    ) AS ev(event_name, event_flag) -- ev means event
 ),
 
-last_10_results AS (
+-- Compute the lag of each event per team and event name
+lag_event_indicator AS (
     SELECT *,
-        SUM(is_win) OVER (
-            PARTITION BY team_id 
-            ORDER BY match_number
-            ROWS BETWEEN 9 PRECEDING AND CURRENT ROW
-        ) AS win_in_last_10,
-
-        SUM(is_draw) OVER (
-            PARTITION BY team_id 
-            ORDER BY match_number
-            ROWS BETWEEN 9 PRECEDING AND CURRENT ROW
-        ) AS draw_in_last_10,
-
-        SUM(is_loss) OVER (
-            PARTITION BY team_id 
-            ORDER BY match_number
-            ROWS BETWEEN 9 PRECEDING AND CURRENT ROW
-        ) AS loss_in_last_10,
-
-        SUM(is_loss_or_draw) OVER (
-            PARTITION BY team_id
-            ORDER BY match_number
-            ROWS BETWEEN 9 PRECEDING AND CURRENT ROW
-        ) AS loss_or_draw_in_last_10,
-
-        SUM(is_win_or_draw) OVER (
-            PARTITION BY team_id
-            ORDER BY match_number
-            ROWS BETWEEN 9 PRECEDING AND CURRENT ROW
-        ) AS win_or_draw_in_last_10
-    FROM ranked
+        LAG(event_flag,1,0) OVER(PARTITION BY team_id, event_name ORDER BY date) AS lag_ev_flag
+    FROM event_indicator
 ),
 
-streak_groups AS (
+-- Build a running group ID for each new streak
+streak_grouped AS (
     SELECT *,
-        SUM(CASE WHEN result != 'win' THEN 1 ELSE 0 END)
-        OVER (PARTITION BY team_id ORDER BY match_number) AS win_streak_group,
+        -- start a new group whenever ev_flag = 1 and prior was 0
+        SUM(
+            CASE 
+                WHEN event_flag = 1 AND lag_ev_flag = 0 THEN 1 
+                ELSE 0 
+            END
+            ) OVER (PARTITION BY team_id, event_name ORDER BY date) AS streak_grp
+    FROM lag_event_indicator
+),
 
-        SUM(CASE WHEN result != 'draw' THEN 1 ELSE 0 END)
-        OVER (PARTITION BY team_id ORDER BY match_number) AS draw_streak_group,
-
-        SUM(CASE WHEN result != 'loss' THEN 1 ELSE 0 END)
-        OVER (PARTITION BY team_id ORDER BY match_number) AS loss_streak_group,
-
-        SUM(CASE WHEN result = 'loss' THEN 1 ELSE 0 END)
-        OVER(PARTITION BY team_id ORDER BY match_number) AS win_or_draw_streak_group,
-
-        SUM(CASE WHEN result = 'win' THEN 1 ELSE 0 END)
-        OVER (PARTITION BY team_id ORDER BY match_number) AS loss_or_draw_streak_group
-    FROM last_10_results
+streaks AS (
+    SELECT *,
+        -- count rows within each (team_id, event_name, streak_grp) for which ev_flag =1 (True)
+        ROW_NUMBER() OVER (PARTITION BY team_id, event_name, streak_grp ORDER BY date) AS streak_count
+    FROM streak_grouped
+    WHERE event_flag = 1
 ),
 
 final AS (
-    SELECT *,
+    SELECT 
+        Fixture_id,
+        date,
+        team_id,
+        team_name,
+        result,
+        event_name,
+        event_flag,
+        lag_ev_flag,
+        streak_grp,
+        streak_count
 
-        -- General streaks
-        CASE WHEN result ='win' 
-            THEN ROW_NUMBER() OVER (
-                PARTITION BY team_id, win_streak_group ORDER BY match_number
-                )
-            ELSE 0 
-        END AS current_win_streak,      
-        
-        CASE WHEN result = 'draw'
-            THEN ROW_NUMBER() OVER (
-                PARTITION BY team_id, draw_streak_group ORDER BY match_number
-            )
-            ELSE 0
-        END AS current_draw_streak,
-
-        CASE WHEN result = 'loss'
-            THEN ROW_NUMBER() OVER (
-                    PARTITION BY team_id, loss_streak_group ORDER BY match_number
-                )
-            ELSE 0
-        END AS current_loss_streak,
-
-        CASE WHEN result IN ('win', 'draw') 
-            THEN ROW_NUMBER() OVER (
-                PARTITION BY team_id, win_or_draw_streak_group ORDER BY match_number
-            )
-            ELSE 0
-        END AS current_win_or_draw_streak,
-        
-        CASE WHEN result IN ('loss', 'draw') 
-            THEN ROW_NUMBER() OVER (
-                PARTITION BY team_id, loss_or_draw_streak_group ORDER BY match_number
-            )
-            ELSE 0
-        END AS current_loss_or_draw_streak,
-
-        --Home Streaks
-        CASE WHEN result = 'win' AND venue = 'home'
-            THEN ROW_NUMBER() OVER (
-                PARTITION BY team_id, venue, win_streak_group ORDER BY match_number
-                )
-            ELSE 0 
-        END AS current_home_win_streak,
-
-         CASE WHEN result ='draw' AND venue = 'home'
-            THEN ROW_NUMBER() OVER (
-                PARTITION BY team_id, venue, draw_streak_group ORDER BY match_number
-                )
-            ELSE 0 
-        END AS current_home_draw_streak, 
-
-        CASE WHEN result ='loss' AND venue = 'home'
-            THEN ROW_NUMBER() OVER (
-                PARTITION BY team_id, venue, loss_streak_group ORDER BY match_number
-                )
-            ELSE 0 
-        END AS current_home_loss_streak,
-
-        CASE WHEN result IN ('win', 'draw') AND venue = 'home'
-            THEN ROW_NUMBER() OVER (
-                PARTITION BY team_id, venue, win_or_draw_streak_group ORDER BY match_number
-                )
-            ELSE 0 
-        END AS current_home_win_or_draw_streak,
-
-        CASE WHEN result IN ('loss', 'draw') AND venue = 'home'
-            THEN ROW_NUMBER() OVER (
-                PARTITION BY team_id, venue, loss_or_draw_streak_group ORDER BY match_number
-                )
-            ELSE 0 
-        END AS current_home_loss_or_draw_streak,
-
-        -- Away streaks
-        CASE WHEN result = 'win' AND venue = 'away'
-            THEN ROW_NUMBER() OVER (
-                PARTITION BY team_id, venue, win_streak_group ORDER BY match_number
-                )
-            ELSE 0 
-        END AS current_away_win_streak,
-
-         CASE WHEN result ='draw' AND venue = 'away'
-            THEN ROW_NUMBER() OVER (
-                PARTITION BY team_id, venue, draw_streak_group ORDER BY match_number
-                )
-            ELSE 0 
-        END AS current_away_draw_streak, 
-
-        CASE WHEN result ='loss' AND venue = 'away'
-            THEN ROW_NUMBER() OVER (
-                PARTITION BY team_id, venue, loss_streak_group ORDER BY match_number
-                )
-            ELSE 0 
-        END AS current_away_loss_streak,
-
-        CASE WHEN result IN ('win', 'draw') AND venue = 'away'
-            THEN ROW_NUMBER() OVER (
-                PARTITION BY team_id, venue, win_or_draw_streak_group ORDER BY match_number
-                )
-            ELSE 0 
-        END AS current_away_win_or_draw_streak,
-
-        CASE WHEN result IN ('loss', 'draw') AND venue = 'away'
-            THEN ROW_NUMBER() OVER (
-                PARTITION BY team_id, venue, loss_or_draw_streak_group ORDER BY match_number
-                )
-            ELSE 0 
-        END AS current_away_loss_or_draw_streak
-
-    FROM streak_groups
+    FROM streaks
+    ORDER BY event_name, date
 )
 
-SELECT
-    --General info
-    fixture_id,
-    date,
-    season,
-    team_id,
-    opponent_id,
-    league,
-    league_id,
-    country,
-    venue,
-    result,
-    match_number,
-
-    --10-game summary
-    win_in_last_10,
-    draw_in_last_10,
-    loss_in_last_10,
-    win_or_draw_in_last_10,
-    loss_or_draw_in_last_10,
-
-    --general streaks
-    current_win_streak,
-    current_draw_streak,
-    current_loss_streak,
-    current_win_or_draw_streak,
-    current_loss_or_draw_streak,
-    
-    --home streaks
-    current_home_win_streak,
-    current_home_draw_streak,
-    current_home_loss_streak,
-    current_home_win_or_draw_streak,
-    current_home_loss_or_draw_streak,
-
-    --away streaks
-    current_away_win_streak,
-    current_away_draw_streak,
-    current_away_loss_streak,
-    current_away_win_or_draw_streak,
-    current_away_loss_or_draw_streak
-    
-FROM final
+SELECT * FROM final

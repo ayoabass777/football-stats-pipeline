@@ -2,86 +2,51 @@ version: 2
 
 models:
   - name: mart_team_goal_streaks
-    description: >
-      Mart model that calculates current streaks for goals scored and conceded
-      by team, including venue-specific (home/away) and threshold-based streaks.
+    description: "Calculates goal streaks and event indicators for each team by match, unpivoting goal and concede flags into events and computing streak group IDs and consecutive counts."
     columns:
       - name: fixture_id
-        description: Unique ID of the fixture
+        description: "ID of the fixture (match) the event belongs to."
         tests:
           - not_null
 
       - name: date
-        description: Date of the fixture
+        description: "Date when the fixture was played."
         tests:
           - not_null
 
       - name: team_id
-        description: Unique identifier for the team
+        description: "ID of the team."
         tests:
           - not_null
 
-      - name: opponent_id
-        description: Unique identifier for the opponent team
-        tests:
-          - not_null
+      - name: team_name
+        description: "Name of the team."
 
-      - name: venue
-        description: Whether the team played home or away
+      - name: goals_scored
+        description: "Number of goals the team scored in the fixture."
+
+      - name: goals_conceded
+        description: "Number of goals the team conceded in the fixture."
+
+      - name: event_name
+        description: "Name of the event indicator (e.g., score_1goal, score_2goal, concede_1goal, concede_2goal, goalless, clean_sheet)."
+
+      - name: ev_flag
+        description: "Indicator flag (0 or 1) whether the event occurred in this match."
         tests:
           - accepted_values:
-              values: ['home', 'away']
+              values: [0, 1]
 
-      - name: team_scored_over_0_5_streak
-        description: Number of consecutive matches the team scored at least 1 goal
+      - name: lag_ev_flag
+        description: "Indicator flag (0 or 1) whether the event occurred for the team in the previous match."
+        tests:
+          - accepted_values:
+              values: [0, 1]
 
-      - name: team_scored_over_1_5_streak
-        description: Number of consecutive matches the team scored at least 2 goals
-
-      - name: team_conceded_over_0_5_streak
-        description: Number of consecutive matches the team conceded at least 1 goal
-
-      - name: team_conceded_over_1_5_streak
-        description: Number of consecutive matches the team conceded at least 2 goals
-
-      - name: team_cleansheet_streak
-        description: Number of consecutive matches the team kept a clean sheet
-
-      - name: team_goalless_streak
-        description: Number of consecutive matches the team failed to score
-
-      - name: home_team_scored_over_0_5_streak
-        description: Home streak where team scored at least 1 goal
-
-      - name: home_team_scored_over_1_5_streak
-        description: Home streak where team scored at least 2 goals
-
-      - name: home_team_conceded_over_0_5_streak
-        description: Home streak where team conceded at least 1 goal
-
-      - name: home_team_conceded_over_1_5_streak
-        description: Home streak where team conceded at least 2 goals
-
-      - name: home_team_cleansheet_streak
-        description: Home streak of clean sheets
-
-      - name: home_team_goalless_streak
-        description: Home streak of not scoring any goal
-
-      - name: away_team_scored_over_0_5_streak
-        description: Away streak where team scored at least 1 goal
-
-      - name: away_team_scored_over_1_5_streak
-        description: Away streak where team scored at least 2 goals
-
-      - name: away_team_conceded_over_0_5_streak
-        description: Away streak where team conceded at least 1 goal
-
-      - name: away_team_conceded_over_1_5_streak
-        description: Away streak where team conceded at least 2 goals
-
-      - name: away_team_cleansheet_streak
-        description: Away streak of clean sheets
-
-      - name: away_team_goalless_streak
-        description: Away streak of not scoring any goal
+      - name: streak_grp
+        description: "Group ID representing each new streak for a team and event, incremented when a new streak starts."
+        
+      - name: streak_count
+        description: "Consecutive match count within the streak group for the given team and event."
+        tests:
+          - not_null

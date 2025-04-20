@@ -5,220 +5,83 @@ WITH base AS(
         FROM {{ ref('int_team_match_goals')}}
 ),
 
-streak_groups AS(
-    SELECT *,
+-- Unpivot all indicators into (team_id, date, fixtures,..., event_name, event_flag)
+event_indicators AS (
+    SELECT 
+        b.fixture_id,
+        b.date,
+        b.team_id,
+        b.team_name,
+        b.goals_scored,
+        b.goals_conceded,
+        ev.event_name,
+        --convert ev_flag to int from boolean
+        ev.ev_flag::int 
+    FROM base as b
+    CROSS JOIN LATERAL (
+        VALUES
+            ('score_1goal', b.goals_scored >= 1),
+            ('score_2goal', b.goals_scored >= 2),
 
-        -- Indicators
-        -- "over_0_5" means goals_scored > 0, i.e., scored at least 1 goal
-        -- "over_1_5" means goals_scored > 1, i.e., scored at least 2 goals
-        CASE WHEN goals_scored > 0 THEN 1 ELSE 0 END AS team_scored_over_0_5,
-        CASE WHEN goals_scored > 1 THEN 1 ELSE 0 END AS team_scored_over_1_5,
-        CASE WHEN goals_conceded > 0 THEN 1 ELSE 0 END AS team_conceded_over_0_5,
-        CASE WHEN goals_conceded > 1 THEN 1 ELSE 0 END AS team_conceded_over_1_5,
-        CASE WHEN goals_scored = 0 THEN 1 ELSE 0 END AS team_goalless,
-        CASE WHEN goals_conceded = 0 THEN 1 ELSE 0 END AS team_cleansheet,
+            ('concede_1goal', b.goals_conceded > 0),
+            ('concede_2goal', b.goals_conceded > 1),
 
-        -- Grouping for streak windows
-        SUM(CASE WHEN goals_scored < 1 THEN 1 ELSE 0 END ) OVER (
-            PARTITION BY team_id ORDER BY date
-        ) AS team_scored_over_0_5_streak_group,
-
-        SUM(CASE WHEN goals_scored < 2 THEN 1 ELSE 0 END ) OVER (
-            PARTITION BY team_id ORDER BY date
-        ) AS team_scored_over_1_5_streak_group,
-
-        SUM(CASE WHEN goals_conceded < 1 THEN 1 ELSE 0 END ) OVER (
-            PARTITION BY team_id ORDER BY date
-        ) AS team_conceded_over_0_5_streak_group,
-
-        SUM(CASE WHEN goals_conceded < 2 THEN 1 ELSE 0 END ) OVER (
-            PARTITION BY team_id ORDER BY date
-        ) AS team_conceded_over_1_5_streak_group,
-
-        SUM(CASE WHEN goals_scored = 0 THEN 1 ELSE 0 END ) OVER (
-            PARTITION BY team_id ORDER BY date
-        ) as team_goalless_streak_group,
-
-        SUM(CASE WHEN goals_conceded = 0 THEN 1 ELSE 0 END ) OVER (
-            PARTITION BY team_id ORDER BY date
-        ) as team_cleansheet_streak_group
-    FROM base
+            ('goalless', b.goals_scored = 0),
+            ('clean_sheet', b.goals_conceded = 0)
+    ) AS ev(event_name, ev_flag) -- ev means event
 ),
 
-final AS(
+-- Compute the lag of each event per team and event name
+lag_event_indicator AS(
     SELECT *,
+        LAG(ev_flag, 1, 0)
+            OVER (PARTITION BY team_id, event_name ORDER BY date) AS lag_ev_flag
+    FROM event_indicators
+),
 
-    -- Scoring Streaks
-    CASE WHEN goals_scored > 0 THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_scored_over_0_5_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS team_scored_over_0_5_streak,
+-- Build a running group ID for each new streak
+streak_grouped AS (  
+    SELECT *,
+        -- start a new group whenever ev_flag = 1 and prior was 0
+        SUM(
+            CASE
+                WHEN ev_flag = 1 AND lag_ev_flag = 0 THEN 1
+                ELSE 0
+            END
+            ) OVER(PARTITION BY team_id, event_name ORDER BY date) AS streak_grp
 
-    CASE WHEN goals_scored > 1 THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_scored_over_1_5_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS team_scored_over_1_5_streak,
+    FROM lag_event_indicator
+),
 
-    -- Conceding Streaks
-    CASE WHEN goals_conceded > 0 THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_conceded_over_0_5_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS team_conceded_over_0_5_streak,
-
-    CASE WHEN goals_conceded > 1 THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_conceded_over_1_5_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS team_conceded_over_1_5_streak,
-
-    -- Defensive Streaks
-    CASE WHEN goals_conceded = 0 THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_cleansheet_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS team_cleansheet_streak,
-
-    CASE WHEN goals_scored = 0 THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_goalless_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS team_goalless_streak,
-
-    -- Home Scoring Streaks
-    CASE WHEN goals_scored > 0 AND venue = 'home' THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_scored_over_0_5_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS home_team_scored_over_0_5_streak,
-
-    CASE WHEN goals_scored > 1 AND venue = 'home' THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_scored_over_1_5_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS home_team_scored_over_1_5_streak,
-
-    -- Home Conceding Streaks
-    CASE WHEN goals_conceded > 0 AND venue = 'home' THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_conceded_over_0_5_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS home_team_conceded_over_0_5_streak,
-
-    CASE WHEN goals_conceded > 1 AND venue = 'home' THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_conceded_over_1_5_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS home_team_conceded_over_1_5_streak,
-
-    -- Home Defensive Streaks
-    CASE WHEN goals_conceded = 0 AND venue = 'home' THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_cleansheet_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS home_team_cleansheet_streak,
-
-    CASE WHEN goals_scored = 0 AND venue = 'home' THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_goalless_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS home_team_goalless_streak,
-
-    -- Away Scoring Streaks
-    CASE WHEN goals_scored > 0 AND venue = 'away' THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_scored_over_0_5_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS away_team_scored_over_0_5_streak,
-
-    CASE WHEN goals_scored > 1 AND venue = 'away' THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_scored_over_1_5_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS away_team_scored_over_1_5_streak,
-
-    -- Away Conceding Streaks
-    CASE WHEN goals_conceded > 0 AND venue = 'away' THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_conceded_over_0_5_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS away_team_conceded_over_0_5_streak,
-
-    CASE WHEN goals_conceded > 1 AND venue = 'away' THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_conceded_over_1_5_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS away_team_conceded_over_1_5_streak,
-
-    -- Away Defensive Streaks
-    CASE WHEN goals_conceded = 0 AND venue = 'away' THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_cleansheet_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS away_team_cleansheet_streak,
-
-    CASE WHEN goals_scored = 0 AND venue = 'away' THEN 
-        ROW_NUMBER() OVER (PARTITION BY team_id, team_goalless_streak_group
-        ORDER BY date)
-        ELSE 0 
-    END AS away_team_goalless_streak
+streaks AS (
     
-FROM streak_groups
+    SELECT *,
+        -- count rows within each (team_id, event_name, streak_grp) for which ev_flag =1 (True)
+        ROW_NUMBER() OVER(PARTITION BY team_id, event_name, streak_grp ORDER BY date)
+          AS streak_count
+    FROM streak_grouped
+    WHERE ev_flag = 1
+),
+
+final AS (
+    SELECT 
+        fixture_id,
+        date,
+        team_id,
+        team_name,
+        goals_scored,
+        goals_conceded,
+        event_name,
+        ev_flag,
+        lag_ev_flag,
+        streak_grp,
+        streak_count
+    FROM streaks
+    ORDER BY event_name, date
+
 )
+SELECT * FROM final
 
-SELECT
-    --General info
-    fixture_id,
-    date,
-    season,
-    team_id,
-    opponent_id,
-    league,
-    league_id,
-    country,
-    venue,
 
-    --GOAL SCORED
-    team_scored_over_0_5_streak,
-    team_scored_over_1_5_streak,
 
-    --GOAL CONCEDED
-    team_conceded_over_0_5_streak,
-    team_conceded_over_1_5_streak,
 
-    --CLEANSHEET
-    team_cleansheet_streak,
-
-    -- TEAM GOALLESS STREAK
-    team_goalless_streak,
-
-    -- HOME GOAL SCORED
-    home_team_scored_over_0_5_streak,
-    home_team_scored_over_1_5_streak,
-
-    -- HOME GOAL CONCEDED
-    home_team_conceded_over_0_5_streak,
-    home_team_conceded_over_1_5_streak,
-
-    -- HOME CLEANSHEET
-    home_team_cleansheet_streak,
-
-    -- HOME TEAM GOALLESS STREAK
-    home_team_goalless_streak,
-
-    -- AWAY GOAL SCORED
-    away_team_scored_over_0_5_streak,
-    away_team_scored_over_1_5_streak,
-
-    -- AWAY GOAL CONCEDED
-    away_team_conceded_over_0_5_streak,
-    away_team_conceded_over_1_5_streak,
-
-    -- AWAY CLEANSHEET
-    away_team_cleansheet_streak,
-
-    -- AWAY TEAM GOALLESS STREAK
-    away_team_goalless_streak
-FROM final
