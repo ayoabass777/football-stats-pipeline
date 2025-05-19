@@ -1,12 +1,16 @@
 import os
-import config
+import etl.src.config as config
 import logging
 import requests
 import json
 import time
 from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
 from slugify import slugify
+
+try:
+    from zoneinfo import ZoneInfo # Python 3.9+
+except ImportError:
+    from backports.zoneinfo import ZoneInfo # python < 3.9
 
 
 API_KEY = config.API['key']

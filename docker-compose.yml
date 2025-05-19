@@ -1,33 +1,115 @@
-version: '3.8'
 
 services:
   postgres:
     image: postgres:latest
     container_name: postgres_db
-    restart: always
+    env_file: .env
     environment:
-      POSTGRES_USER: ayoabass
-      POSTGRES_PASSWORD: tamzynana
-      POSTGRES_DB: football_betting
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
-      - "5433:5432"
+      - "5432:5432"
+    networks:
+      - etl_network
+  
+  airflow-init:
+    build:
+      context: .
+      dockerfile: airflow/Dockerfile
+    container_name: airflow-init
+    image: custom-airflow:python3.10 
+    env_file: .env
+    environment:
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      - bash 
+      - -c 
+      - >
+        airflow db init &&
+        airflow users create \
+          --username admin \
+          --firstname Admin \
+          --lastname User \
+          --role Admin \
+          --email ayoabass777@gmail.com \
+          --password ${AIRFLOW__WEBSERVER__DEFAULT_USER_PASSWORD}
+      
     networks:
       - etl_network
 
-etl:
-  build: .
-  container_name: etl_script
-  depends_on :
-    - postgres
-  environment:
-    DB_NAME: football_betting
-    DB_USER: ayoabass
-    DB_PASSWORD: tamzynana
-    DB_HOST: postgres
-    DB_PORT: 5433
-  networks:
-    - etl_network
+  airflow-webserver:
+    build:
+      context: .   #project root, not just ./airflow
+      dockerfile: airflow/Dockerfile
+    container_name: airflow-webserver
+    image: custom-airflow:python3.10 
+    env_file: .env
+    environment:
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW__WEBSERVER__SECRET_KEY}
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./etl:/opt/airflow/etl
+      - ./data:/opt/airflow/data
+      - ./airflow/logs:/opt/airflow/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - etl_network
+    command: ["airflow", "webserver"]
+
+  airflow-scheduler:
+    build:
+      context: . # project root, not just ./airflow
+      dockerfile: airflow/Dockerfile
+    container_name: airflow-scheduler
+    image: custom-airflow:python3.10 
+    env_file: .env
+    environment:
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW__WEBSERVER__SECRET_KEY}
+    depends_on:
+      - airflow-webserver
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./etl:/opt/airflow/etl
+      - ./data:/opt/airflow/data
+      - ./airflow/logs:/opt/airflow/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - etl_network
+    command: ["airflow", "scheduler"]
+
+  dbt:
+    build: ./dbt
+    container_name: dbt
+    image: football_pipeline-dbt:latest
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - etl_network
+    
+
+volumes:
+  pg_data:
 
 networks:
   etl_network:
-    driver: bridge
+    name: etl_network

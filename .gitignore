@@ -1,4 +1,33 @@
-env/
+# Byte-code and caches
 __pycache__/
-*.pyc
-*.DS_Store
+*.py[cod]
+
+# Virtualenvs & env-files
+venv/
+.env
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Docker & Airflow artifacts
+airflow/logs/
+data/
+*.db
+docker-compose.override.yml
+
+# dbt artifacts
+dbt/football_pipeline/target/
+dbt/football_pipeline/logs/
+
+# Editor directories
+.vscode/
+
+
+# Python tooling
+.mypy_cache/
+.ruff_cache/
+
+# macOS files
+.DS_Store

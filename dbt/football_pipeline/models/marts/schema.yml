@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: mart_team_result_streaks
+    description: "Calculates match result streaks and event indicators for each team by match, unpivoting win/draw/loss flags into events and computing streak group IDs and consecutive counts."
+    columns:
+      - name: fixture_id
+        description: "ID of the fixture (match) the event belongs to."
+        tests:
+          - not_null
+      - name: date
+        description: "Date when the fixture was played."
+        tests:
+          - not_null
+      - name: team_id
+        description: "ID of the team."
+        tests:
+          - not_null
+      - name: team_name
+        description: "Name of the team."
+      - name: result
+        description: "Match result (win, draw, or loss)."
+      - name: event_name
+        description: "Name of the event indicator (e.g., win, draw, loss, win_or_draw, loss_or_draw)."
+      - name: event_flag
+        description: "Indicator flag (0 or 1) whether the event occurred in this match."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: lag_ev_flag
+        description: "Indicator flag (0 or 1) whether the event occurred for the team in the previous match."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: streak_grp
+        description: "Group ID representing each new streak for a team and event, incremented when a new streak starts."
+      - name: streak_count
+        description: "Consecutive match count within the streak group for the given team and event."
+        tests:
+          - not_null
