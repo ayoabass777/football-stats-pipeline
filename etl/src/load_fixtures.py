@@ -5,7 +5,7 @@ from sqlalchemy import create_engine, text
 
 DB_CONFIG = config.DB_CONFIG
 
-logging.basicConfig(filename='load_to_db_logs.txt',
+logging.basicConfig(filename='.data/logs/load_to_db_logs.txt',
                     level= logging.INFO,
                     format= "%(asctime)s - %(levelname)s :%(message)s",
                     datefmt= "%Y-%m-%d %H:%M:%S"

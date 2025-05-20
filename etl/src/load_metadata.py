@@ -5,7 +5,7 @@ import json
 
 
 logging.basicConfig(
-    filename= "metadata_log.txt", 
+    filename= "./data/logs/load_metadata_log.txt", 
     level=logging.INFO, 
     format="%(asctime)s - %(levelname)s: %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S"
