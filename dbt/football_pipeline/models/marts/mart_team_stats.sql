@@ -23,46 +23,77 @@ WITH base AS(
 
 games_played_stats AS (
     SELECT *,
-        COUNT(*) AS games_played,
-        SUM(CASE WHEN result ='win' THEN 1 ELSE 0) AS wins,
-        SUM(CASE WHEN result='loss' THEN 1 ELSE 0) AS losses,
-        SUM(CASE WHEN result='draw' THEN 1 ELSE 0) AS draws,
-        SUM(goals_scored) AS goals_for,
-        SUM(goals_conceded) AS goals_against
+        COUNT(*) OVER(PARTITION BY league_id, season, team_id ORDER BY date) AS games_played,
+        SUM(CASE WHEN result ='win' THEN 1 ELSE 0 END) OVER(PARTITION BY league_id, season, team_id ORDER BY date) AS wins,
+        SUM(CASE WHEN result='loss' THEN 1 ELSE 0 END) OVER(PARTITION BY league_id, season, team_id ORDER BY date) AS losses,
+        SUM(CASE WHEN result='draw' THEN 1 ELSE 0 END) OVER(PARTITION BY league_id, season, team_id ORDER BY date) AS draws,
+        SUM(goals_scored) OVER(PARTITION BY league_id, season, team_id ORDER BY date) AS goals_for,
+        SUM(goals_conceded) OVER(PARTITION BY league_id, season, team_id ORDER BY date) AS goals_against,
+        ROW_NUMBER() OVER(PARTITION BY league_id, season, team_id ORDER BY date) AS matchday
     FROM base
-    GROUP BY team_id, season, league_id
 ),
 
-rates_and_average AS (
+rolling_rates_and_averages AS (
     SELECT *,
-        (wins:: FLOAT / games_played) AS win_rate,
-        (losses:: FLOAT / games_played) AS loss_rate,
-        AVG(goals_scored) AS AVG_goals_for_per_game,
-        AVG(goals_against) AS AVG_goals_against_per_game
+        ROUND((wins:: FLOAT / games_played)::numeric, 2) AS rolling_win_rate,
+        ROUND((losses:: FLOAT / games_played)::numeric, 2) AS rolling_loss_rate,
+        ROUND((draws:: FLOAT / games_played)::numeric, 2) AS rolling_draw_rate,
+        ROUND(AVG(goals_scored)
+            OVER(PARTITION BY league_id, season, team_id 
+                ORDER BY date)::numeric, 2)AS rolling_AVG_goals_for,
+        ROUND(AVG(goals_conceded) 
+            OVER(PARTITION BY league_id, season, team_id 
+                ORDER BY date)::numeric, 2) AS rolling_AVG_goals_against
     FROM games_played_stats
+),
+
+rolling_pts AS (
+    SELECT *,
+        SUM(CASE WHEN result ='win' THEN 3
+                WHEN result='draw' THEN 1
+                ELSE 0
+            END) OVER(PARTITION BY league_id, season, team_id ORDER BY date) AS rolling_points
+    FROM rolling_rates_and_averages
+),
+
+last_5_form AS (
+    SELECT *,
+        array_agg(CASE WHEN result = 'win' THEN 'W'
+                        WHEN result = 'draw' THEN 'D'
+                        WHEN result = 'loss' THEN 'L'
+                        ELSE NULL END)
+            OVER(PARTITION BY league_id, season, team_id 
+                ORDER BY matchday
+                ROWS BETWEEN 4 PRECEDING AND CURRENT ROW ) AS form 
+    FROM rolling_pts
 ),
 
 final AS(
     SELECT *
-    FROM rates_and_average
+    FROM last_5_form
 )
 
 SELECT
+    date,
+    matchday,
     team_name,
     league,
     country,
     season,
     games_played,
+    form,
     wins,
     losses,
     draws,
     goals_for,
     goals_against,
-    win_rate,
-    loss_rate,
-    AVG_goals_for_per_game,
-    AVG_goals_against_per_game
-FROM final;
+    rolling_win_rate,
+    rolling_draw_rate,
+    rolling_loss_rate,
+    rolling_AVG_goals_for,
+    rolling_AVG_goals_against,
+    rolling_points
+FROM final
 
     
 
