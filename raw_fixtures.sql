@@ -1,17 +1,17 @@
 CREATE TABLE raw_fixtures(
-	fixture_id BIGINT PRIMARY KEY,
-	date TIMESTAMP,
-	season INTEGER,
+	fixture_id BIGINT PRIMARY KEY NOT NULL,
+	match_date TIMESTAMP,
+	season INTEGER NOT NULL,
 
 	league_id INTEGER,
-	league VARCHAR(100),
-	country VARCHAR(100),
+	league VARCHAR(100) NOT NULL,
+	country VARCHAR(100) NOT NULL,
 
 	-- Teams
 	home_team_id INTEGER,
-	home_team_name VARCHAR(255),
+	home_team_name VARCHAR(255) NOT NULL,
 	away_team_id INTEGER,
-	away_team_name VARCHAR(255),
+	away_team_name VARCHAR(255) NOT NULL,
 
 	--Scores
 	home_team_halftime_goal INTEGER,
@@ -26,5 +26,5 @@ CREATE TABLE raw_fixtures(
 	away_halftime_result VARCHAR(10),
 
 	-- Match status: FT, NS, PST, etc.
-	status  VARCHAR(5)
+	match_status  VARCHAR(5) NOT NULL
 );

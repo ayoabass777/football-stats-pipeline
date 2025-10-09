@@ -1,219 +1,95 @@
 version: 2
 
 models:
-  - name: int_team_match_results
-    description: Intermediate model transforming completed fixtures into team-level match results (home and away perspective).
+  - name: dim_teams
+    description: "Conformed teams (INT layer). Standardizes team names and preserves both warehouse and API keys."
+    config:
+      schema: int
+      materialized: table
     columns:
-      - name: fixture_id
-        description: Unique match identifier
-        tests:
-          - not_null
-
       - name: team_id
-        description: Team that played the match
+        description: "Warehouse/team surrogate key."
         tests:
           - not_null
+          - unique
 
-      - name: opponent_id
-        description: Opponent in the match
+      - name: api_team_id
+        description: "Natural/business key from the API; used for mapping from staging/raw."
         tests:
           - not_null
-
-      - name: result
-        description: Match result from team’s perspective (win/draw/loss)
-        tests:
-          - accepted_values:
-              values: ['win', 'draw', 'loss']
-
-      - name: venue
-        description: Whether the team played at home or away
-        tests:
-          - accepted_values:
-              values: ['home', 'away']
-
-  - name: int_team_match_goals
-    description: Intermediate model breaking down goals scored and conceded by team in each match.
-    columns:
-      - name: fixture_id
-        description: Unique match identifier
-        tests:
-          - not_null
-
-      - name: team_id
-        description: Team in the match
-        tests:
-          - not_null
-
-      - name: opponent_id
-        description: Opponent in the match
-        tests:
-          - not_null
-
-      - name: goals_scored
-        description: Number of goals scored by the team
-        tests:
-          - not_null
-
-      - name: goals_conceded
-        description: Number of goals conceded by the team
-        tests:
-          - not_null
-
-      - name: venue
-        description: Home or away status
-        tests:
-          - accepted_values:
-              values: ['home', 'away']
-
-  - name: int_team_goal_streaks
-    description: |
-      Computes goal‐and‐concession streaks for each team and event type.
-      For every fixture it:
-        1. Unpivots goals scored/conceded into event rows.
-        2. Marks each row with ev_flag and the previous lag_ev_flag.
-        3. Assigns a streak_grp when a new run of ev_flag=1 starts.
-        4. Counts consecutive ev_flag=1 rows as streak_count, leaving zeros when broken.
-    columns:
-      - name: fixture_id
-        description: "Unique identifier of the fixture."
-        tests:
-          - not_null
-
-      - name: date
-        description: "Date of the fixture."
-        tests:
-          - not_null
-
-      - name: team_id
-        description: "Unique identifier of the team."
-        tests:
-          - not_null
+          - unique
 
       - name: team_name
-        description: "Human-readable name of the team."
+        description: "Standardized team name (initcap)."
         tests:
           - not_null
 
-      - name: goals_scored
-        description: "Number of goals the team scored in that fixture."
-        tests:
-          - not_null
-          - numeric
-
-      - name: goals_conceded
-        description: "Number of goals the team conceded in that fixture."
-        tests:
-          - not_null
-          - numeric
-
-      - name: event_name
-        description: |
-          The type of event that defines the streak, one of:
-          'score_1goal', 'score_2goal', 'concede_1goal',
-          'concede_2goal', 'goalless', 'clean_sheet'.
-        tests:
-          - not_null
-          - accepted_values:
-              values: ['score_1goal','score_2goal','concede_1goal','concede_2goal','goalless','clean_sheet']
-
-      - name: ev_flag
-        description: "Integer flag (1 or 0) indicating whether that event occurred."
-        tests:
-          - not_null
-          - accepted_values:
-              values: [0, 1]
-
-      - name: lag_ev_flag
-        description: |
-          The ev_flag of the previous fixture (by date) for the same
-          team and event. Defaults to 0 if no previous row exists.
-        tests:
-          - not_null
-          - accepted_values:
-              values: [0, 1]
-
-      - name: streak_grp
-        description: |
-          A running group identifier that increments by one each time
-          a new ev_flag=1 run starts (i.e., when ev_flag=1 and lag_ev_flag=0).
-
-      - name: streak_count
-        description: |
-          The length of the current streak of ev_flag=1, counting
-          consecutive fixtures within each streak_grp. Rows where
-          ev_flag=0 have streak_count=0.
-        tests:
-          - not_null
-
-  - name: int_team_result_streaks
-    description: |
-      Computes result-based streaks for each team:
-      for each fixture and each event type (win, draw, loss, win_or_draw, loss_or_draw),
-      assigns a group identifier whenever a new streak starts and counts consecutive occurrences,
-      preserving zeroes on breaks.
+  - name: int_fixtures
+    description: "Conformed fixtures enriched with league/season context and Warehouse team ids using join o
+                  the raw_fixtures api_league_id and the int_league_context api_league_id, also on the."
+    config:
+      schema: int
+      materialized: table
     columns:
       - name: fixture_id
-        description: "Unique identifier of the fixture."
+        description: "Warehouse fixture identifier."
+        tests: [not_null, unique]
+
+      - name: league_season_id
+        description: "FK to int_league_context.league_season_id."
         tests:
           - not_null
+          - relationships:
+              to: ref('int_league_context')
+              field: league_season_id
 
-      - name: date
-        description: "Date of the fixture."
+      - name: league_name
+        description: "League display name from league context."
+        tests: [not_null]
+
+      - name: season
+        description: "Season label used in joins (e.g., 2024)."
+        tests: [not_null]
+
+      - name: kickoff_utc
+        description: "Fixture start time in UTC."
+        tests: [not_null]
+
+      - name: home_team_id
+        description: "Home team Warehouse id (natural key)."
         tests:
           - not_null
+          - relationships:
+              to: ref('dim_teams')      # your INT teams model (schema=int)
+              field: api_team_id
 
-      - name: team_id
-        description: "Unique identifier of the team."
+      - name: away_team_id
+        description: "Away team Warehouse id (natural key)."
         tests:
           - not_null
+          - relationships:
+              to: ref('dim_teams')
+              field: api_team_id
 
-      - name: team_name
-        description: "Name of the team."
-        tests:
-          - not_null
+      - name: is_played
+        description: "True when the fixture has been completed."
+        tests: [not_null]
 
-      - name: result
-        description: "The match outcome for the team: 'win', 'draw', or 'loss'."
-        tests:
-          - not_null
-          - accepted_values:
-              values: ['win', 'draw', 'loss']
+      - name: updated_at
+        description: "Source update timestamp used for incremental loads."
+        tests: [not_null]
 
-      - name: event_name
-        description: |
-          The specific event derived from `result`, including:
-          - 'win', 'draw', 'loss'
-          - 'win_or_draw', 'loss_or_draw'
-        tests:
-          - not_null
-          - accepted_values:
-              values: ['win', 'draw', 'loss', 'win_or_draw', 'loss_or_draw']
+      - name: fixture_status
+        description: "Raw status from API (e.g., NS, FT, PST)."
 
-      - name: event_flag
-        description: |
-          Integer flag (1 or 0) indicating whether the given `event_name`
-          occurred for that fixture.
-        tests:
-          - not_null
-          - accepted_values:
-              values: [0, 1]
+      - name: is_current
+        description: "True if the joined league season is current."
+        tests: [not_null]
+  
+  # -----------------------------------------------------------------------------
+# fact_team_fixtures schema + tests
+# -----------------------------------------------------------------------------
+ 
 
-      - name: lag_ev_flag
-        description: |
-          The `event_flag` of the previous fixture (ordered by date)
-          for the same team and event, defaulting to 0 if none exists.
-        tests:
-          - not_null
-
-      - name: streak_grp
-        description: |
-          An incrementing identifier for each new streak
-          (whenever `event_flag` = 1 and `lag_ev_flag` = 0).
-
-      - name: streak_count
-        description: |
-          The length of the current streak, counting consecutive
-          `event_flag = 1` rows within each `streak_grp`. Rows where
-          `event_flag = 0` have `streak_count = 0`.
-        tests:
-          - not_null
+   
+      

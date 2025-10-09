@@ -1,11 +1,18 @@
+from requests.exceptions import HTTPError, ConnectionError, Timeout, RequestException
 import os
 import etl.src.config as config
+from etl.src.config import EXTRACT_FIXTURES_LOG
+import psycopg2
 import logging
 import requests
 import json
 import time
 from datetime import datetime, timedelta
 from slugify import slugify
+from typing import List, Dict, Any, Tuple, Optional
+from etl.src.extract_metadata import get_db_connection
+from etl.src.logger import get_logger
+logger = get_logger(__name__, log_path=EXTRACT_FIXTURES_LOG)
 
 try:
     from zoneinfo import ZoneInfo # Python 3.9+
@@ -13,6 +20,8 @@ except ImportError:
     from backports.zoneinfo import ZoneInfo # python < 3.9
 
 
+
+# API connection parameters loaded from config.py.
 API_KEY = config.API['key']
 API_HOST = config.API['host']
 API_URL = config.API['url']
@@ -21,196 +30,273 @@ HEADERS = {
     'x-rapidapi-host': API_HOST
 }
 
-logging.basicConfig(
-    filename= "./data/logs/extract_fixtures_logs.txt",
-    level= logging.DEBUG,
-    format= "%(asctime)s - %(levelname)s: %(message)s",
-    datefmt= "%Y-%m-%d %H:%M:%S"
-)
+# Parameterized API endpoint names
+FIXTURES_ENDPOINT = "fixtures"
 
 
-def load_json(file_path):
-    try:
-        with open(file_path, 'r') as file:
-            json_file = json.load(file)
-            logging.info("json file has been loaded into program")
-            return json_file
-    except Exception as e:
-        logging.error(f"Failed to load {file_path}: {e}")
-        raise
+
+
+# Helper to check for required fixture fields
+def _validate_fixture(fixture: Dict[str, Any]) -> Tuple[List[str], Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
+    """
+    Check that a fixture dict has the required sections.
+    Returns (missing_keys, fixture_data, teams_data, score_data).
+    """
+    fixture_data = fixture.get("fixture") or {}
+    teams_data   = fixture.get("teams")   or {}
+    score_data   = fixture.get("score")   or {}
+    league_data  = fixture.get("league")  or {}
+    missing = []
+    if not fixture_data:
+        missing.append("fixture")
+    if not teams_data:
+        missing.append("teams")
+    if not score_data:
+        missing.append("score")
+    if not league_data: 
+        missing.append("league")
+    return missing, fixture_data, teams_data, score_data, league_data
     
-def write_json(file_path, data):
+def write_json(file_path: str, data: Any) -> None:
+    """
+    Write Python object `data` to a JSON file at `file_path`.
+    Raises OSError or TypeError on failure.
+    """
     try:       
         with open(file_path, "w") as file:
             json.dump(data, file, indent= 4)
-    except Exception as e :
-        logging.error(f"Failed to write file {file_path}: {e}")
+            logger.info(f"Wrote JSON to {file_path} ({len(data)} records)")
+    except (OSError, TypeError) as e :
+        logger.error(f"Failed to write file {file_path}: {e}")
         raise 
 
+def daily_sleep_calculator():
+    """
+    Sleeps until the next UTC day starts at midnight.
+    This is useful for resetting daily rate limits.
+    """
+    utc_now = datetime.now(ZoneInfo("UTC"))
+    next_day = datetime.combine(utc_now.date() + timedelta(days=1), datetime.min.time(), tzinfo=ZoneInfo("UTC"))
+    sleep_sec = (next_day - utc_now).total_seconds()
+    logger.info(f"Sleeping until next UTC day: {sleep_sec} seconds")
+    time.sleep(sleep_sec)
 
+# Unified rate-limited GET with retry/backoff and 429 handling
+def _rate_limited_get(
+    endpoint: str,
+    params: Dict[str, Any],
+    max_retries: int = 5
+) -> List[Dict[str, Any]]:
+    """
+    Perform an HTTP GET with automatic rate-limit handling:
+    - Honors daily and per-minute limit headers.
+    - Retries on HTTP 429 with Retry-After header.
+    - Uses exponential backoff on transient errors.
+    Returns list of JSON 'response' elements or empty list on failure.
+    """
+    backoff = 1
+    for attempt in range(1, max_retries + 1):
+        try:
+            response = requests.get(f"{API_URL}{endpoint}", headers=HEADERS, params=params, timeout=10)
+            # Enforce limits
+            daily_rem = int(response.headers.get('x-ratelimit-requests-remaining', 1))
+            min_rem   = int(response.headers.get('x-ratelimit-remaining', 1))
+            if daily_rem < 1:
+                # Sleep until next UTC day
+                daily_sleep_calculator()
+                continue
+            if min_rem < 1:
+                logger.info("Minute rate limit reached, sleeping 60s")
+                time.sleep(60)
+                continue
+
+            # Check for HTTP errors
+            if response.status_code == 429:
+                retry_after = int(response.headers.get('Retry-After', backoff))
+                logger.info(f"HTTP 429 received, sleeping {retry_after}s")
+                time.sleep(retry_after)
+                continue
+            response.raise_for_status()
+            return response.json().get("response", [])
+        except (HTTPError, ConnectionError, Timeout) as e:
+            logger.warning(f"Transient error on attempt {attempt}/{max_retries}: {e}. Retrying in {backoff}s")
+            time.sleep(backoff)
+            backoff = min(backoff * 2, 60)
+        except RequestException as e:
+            logger.error(f"Non-retryable request error: {e}")
+            break
+    logger.error(f"Failed to fetch {endpoint} after {max_retries} attempts with params: {params}")
+    return []
 
 # endpoint params => Listof fixture
 # endpoint is fixtures
 #params is league_id and season
 
-
-
 def fetch_fixtures(endpoint, params):
-
-
-    def handle_daily_limit(request_allowed):
-                utc_now = datetime.now(ZoneInfo("UTC"))
-                next_day = datetime.combine(utc_now.date() + timedelta(days=1), datetime.min.time(), tzinfo=ZoneInfo("UTC"))
-                wait_seconds = (next_day - utc_now).total_seconds()
-                logging.info("Daily request rate limit hit. Sleeping until next day UTC time")
-                time.sleep(wait_seconds)
-            
-            #Retry once after waiting
-                return fetch_fixtures(endpoint, params)
-    
-    def handle_minute_limit(request_allowed):
-        minute_wait = 60 #seconds
-
-        logging.info(f"Minute request rate limit hit. Sleeping for 1 minute")
-        time.sleep(minute_wait)
-            
-        #Retry once after waiting
-        return fetch_fixtures(endpoint, params)
-        
-    
-
-    try:
-        response = requests.get(f"{API_URL}{endpoint}", headers= HEADERS, params=params)
-
-        #Access rate limit headers safely
-        daily_remaining_request_allowed = int(response.headers.get('x-ratelimit-requests-remaining', 1))
-        minute_remaining_request_allowed = int(response.headers.get('x-ratelimit-remaining', 1))
-        
-
-        #Daily limit handling
-        if  daily_remaining_request_allowed < 1:
-            handle_daily_limit(daily_remaining_request_allowed )
-                
-            
-
-        # Per-minute limit handling
-        if minute_remaining_request_allowed < 1:
-            handle_minute_limit(minute_remaining_request_allowed)
-            
-        #raise HTTP error (if status code is 4xx or 5xx)    
-        response.raise_for_status()
-
-        data = response.json().get("response",[])
-        logging.debug(f"Response headers: {dict(response.headers)}")
-
-        if not data:
-            logging.warning(f"No fixtures found for the params: {params}")
-            return []
-    
-        return data
-
-    except requests.exceptions.HTTPError as e:
-        logging.error(f"HTTP error: {e} for endpoint {endpoint}")
-    except requests.exceptions.ConnectionError:
-        logging.error("Network error: Could not connect to server.")
-    except requests.exceptions.Timeout:
-        logging.error("Request Timeout")
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Unexpected error: {e} for endpoint {endpoint}")
-
-    return []
+    """
+    Fetch fixtures from the API with rate limiting and error handling.  
+    Returns a list of fixtures or an empty list on failure.
+    """
+    return _rate_limited_get(endpoint, params)
 
 #fixtures is a list of fixtures each fixture contains a lot of information that
 #should be documented but i will only extract the ones i consider important
 
 #extract each fixture from a league listof fixtures
-def extract_fixtures_field(fixtures, league_id, season):
+def extract_fixtures_field(
+    fixtures: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
+    """
+    Transform raw fixture payloads into a list of simplified dicts.
+    Skips any records missing critical data.
+    """
+    skip_count = 0
     extracted = []
 
     for fixture in fixtures:
+        missing, fixture_data, teams_data, score_data, league_data = _validate_fixture(fixture)
+        fid = fixture_data.get("id", "unknown")
+        league_id = league_data.get("id", "unknown")
+        season = league_data.get("season", "unknown")
+        teams_names = (teams_data.get("home", {}).get("name"),teams_data.get("away", {}).get("name"))
+        if missing:
+            logger.warning(f"Skipping fixture id={fid} for teams {teams_data}: missing {missing}")
+            skip_count += 1
+            continue
+        # All required data present; build record
         try:
             extracted.append({
-            "fixture_id": fixture.get("fixture", {}).get("id", None),
-            "league_id": league_id,
-            "season": season,
-            "date": fixture.get("fixture", {}).get("date", None),
-            "status": fixture.get("fixture", {}).get("status", {}).get("short", "NS"),
-            "home_team_id": fixture.get("teams", {}).get("home", {}).get("id", None),
-            "home_team_name": fixture.get("teams", {}).get("home", {}).get("name", None),
-            "away_team_id": fixture.get("teams", {}).get("away", {}).get("id", None),
-            "away_team_name": fixture.get("teams", {}).get("away", {}).get("name", None),
-            "home_team_halftime_goal": fixture.get("score", {}).get("halftime", {}).get("home", None),
-            "away_team_halftime_goal": fixture.get("score", {}).get("halftime", {}).get("away", None),
-            "home_team_fulltime_goal": fixture.get("score", {}).get("fulltime", {}).get("home", None),
-            "away_team_fulltime_goal": fixture.get("score", {}).get("fulltime", {}).get("away", None)
+                "api_fixture_id": fixture_data.get("id"),
+                "api_league_id": league_data.get("id"),
+                "season": league_data.get("season"),
+                "kickoff_utc": fixture_data.get("date"),
+                "fixture_status": fixture_data.get("status", {}).get("short", "NS"),
+                "home_team_id": teams_data.get("home", {}).get("id"),
+                "home_team_name": teams_data.get("home", {}).get("name"),
+                "away_team_id": teams_data.get("away", {}).get("id"),
+                "away_team_name": teams_data.get("away", {}).get("name"),
+                "home_team_halftime_goal": score_data.get("halftime", {}).get("home"),
+                "away_team_halftime_goal": score_data.get("halftime", {}).get("away"),
+                "home_team_fulltime_goal": score_data.get("fulltime", {}).get("home"),
+                "away_team_fulltime_goal": score_data.get("fulltime", {}).get("away")
             })
-        except Exception as e:
-            logging.warning(f"Skipping bad fixture record: {e}")
+        except (KeyError, TypeError, ValueError) as e:
+            logger.warning(f"Skipping bad fixture record id={fid} at index {i}: {e}")
+            skip_count += 1
             continue
+    if skip_count:
+        logger.info(
+            f"Skipped {skip_count} fixtures due to missing data or errors "
+            f"league_id= {league_id, season}"
+            f"teams names ={teams_names}"
+        )
     return extracted
 
-def save_fixture_data(country, league_name, season, data, filename="fixtures.json", overwrite=True):
+def save_fixture_data(
+    country: str,
+    league_name: str,
+    season: int,
+    data: List[Dict[str, Any]],
+    filename: str = "fixtures.json",
+    overwrite: bool = True
+) -> None:
     """
-    The function takes the country, league_name, season and extracted fixtures 
-    and stores it in a folder path for each country -> league -> year
-
-    It also checks overwrite as a flag to rewrite on previously seen files 
-    Thus would be used because all fixtures are re-extracted with new information on all fixtures
+    Save extracted fixture dicts to disk under the configured fixtures path.
+    Creates directories as needed and respects the overwrite flag.
     """
-    base_path = f"./data/fixtures/{slugify(country)}/{slugify(league_name)}/{season}"
+    base_path = os.path.join(config.FIXTURES_PATH, slugify(country), slugify(league_name), str(season))
     os.makedirs(base_path, exist_ok=True)
 
     file_path = os.path.join(base_path, filename)
 
     if os.path.exists(file_path) and not overwrite:
-        logging.info(f"Skipping save: {file_path} already exists.")
+        logger.info(f"Skipping save: {file_path} already exists.")
         return
     
     write_json(file_path, data)
-    logging.info(f"Fixtures saved to: {file_path}")
+    logger.info(f"Fixtures saved to: {file_path}")
 
- #extracting fixtures logic   
-def extract_fixtures():
+def get_season_rows(
+    cur: psycopg2.extensions.cursor
+) -> List[Tuple[str, str, int, int]]:
+    """
+    Fetch all league-season combinations from the database.
+    Returns a list of tuples (country_name, league_name, league_id, season_year).
+    """
+    cur.execute("""
+        SELECT
+          c.country_name,
+          l.league_name,
+          l.api_league_id,
+          EXTRACT(YEAR FROM ls.start_date)::int AS season_year
+        FROM dim.dim_league_seasons ls
+        JOIN dim.dim_leagues l ON ls.league_id = l.league_id
+        JOIN dim.dim_countries c ON l.country_id = c.country_id
+    """)
+    return cur.fetchall()
 
-    #Load the extracted metadata with league ids 
-    metadata = load_json('./data/metadata_with_api.json')
-
-    for country in metadata:
-        for league in country['leagues']:
-
-            #check if league_id is missing
-            if not league.get("league_id"):
-                logging.warning(f"Skipping league '{league['name']}' - missing league_id.")
-                continue
-
+def extract_fixtures() -> Tuple[int, int]:
+    """
+    ETL for fixtures:
+    - Reads api_league_id and season_year from dim tables
+    - Fetches fixtures from API
+    - Transforms and saves to disk
+    """
+    total_extracted = 0
+    total_failed_leagues = 0
+    # Measure DB connection time
+    start_conn = time.time()
+    conn = get_db_connection()
+    conn_elapsed = time.time() - start_conn
+    logger.info(f"Database connection established in {conn_elapsed:.2f}s")
+    cur = conn.cursor()
+    logger.info("Starting fixtures extraction")
+    try:
+        # Query each league-season combination
+        rows = get_season_rows(cur)
+        for country_name, league_name, api_league_id, season_year in rows:
+            logger.info(f"Processing fixtures for {league_name} season {season_year}")
             try:
-                id= league["league_id"]
-                latest_season = max( season['start_year'] for season in league['seasons'])
+                # Fetch fixtures with timing
+                start_fetch = time.time()
+                fixtures = fetch_fixtures(FIXTURES_ENDPOINT, params={"league": api_league_id, "season": season_year})
+                fetch_elapsed = time.time() - start_fetch
+                logger.info(f"Fetched {len(fixtures)} fixtures for {league_name} season {season_year} in {fetch_elapsed:.2f}s")
 
-            #fetch fixtures
-                fixtures = fetch_fixtures("fixtures", params={"league": id, "season": latest_season})
+                # Transform fixtures with timing
+                start_transform = time.time()
+                extracted = extract_fixtures_field(fixtures)
+                transform_elapsed = time.time() - start_transform
+                logger.info(f"Transformed {len(extracted)} fixtures in {transform_elapsed:.2f}s")
 
-                extracted_fixtures = extract_fixtures_field(fixtures, id, latest_season)
-
-                if not extracted_fixtures:
-                    logging.warning(f"No fixtures extracted for {league['name']} ({latest_season})")
+                if not extracted:
+                    logger.warning(f"No fixtures for {league_name} ({season_year})")
                     continue
-                
-                #save fixtures data into the data folder with a subfolder for each country
-                save_fixture_data(country['name'],league['name'], latest_season, extracted_fixtures)
 
-                logging.info(f"Saved {len(extracted_fixtures)} fixtures for {league['name']} ({latest_season})")
-        
-            except Exception as e:
-                logging.error(f"Error while processing league '{league['name']}': {e}")
+                # Save fixtures with timing
+                start_save = time.time()
+                save_fixture_data(country_name, league_name, season_year, extracted)
+                save_elapsed = time.time() - start_save
+                logger.info(f"Saved {len(extracted)} fixtures for {league_name} ({season_year}) in {save_elapsed:.2f}s")
+                total_extracted += len(extracted)
+            except (RequestException, psycopg2.Error) as e:
+                logger.error(f"Network/DB error for {league_name} ({season_year}): {e}", exc_info=True)
+                total_failed_leagues += 1
                 continue
-
-    logging.info("All fixture data extraction complete.")
+        logger.info("All fixture data extraction complete.")
+        logger.info(
+            f"Extraction summary: {total_extracted} fixtures extracted across "
+            f"{len(rows)} league-seasons with {total_failed_leagues} failures"
+        )
+        return total_extracted, total_failed_leagues
+    finally:
+        cur.close()
+        conn.close()
 
 if __name__ == "__main__":
-    extract_fixtures()
 
-
-
-    
-
+    logger.info("Invoking extract_fixtures")
+    try:
+        extract_fixtures()
+    except KeyboardInterrupt:
+        logger.warning("Keyboard interrupt received: shutting down extraction.")

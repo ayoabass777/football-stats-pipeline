@@ -2,7 +2,7 @@
 
 SELECT
     fixture_id,
-    date,
+    match_date AS date,
     season,
     country,
     league,
@@ -19,7 +19,7 @@ SELECT
     away_fulltime_result,
     home_halftime_result,
     away_halftime_result,
-    status
+    match_status AS status
 
-FROM {{ source('raw', 'raw_fixtures') }}
-WHERE status = 'FT'
+FROM {{ source('raw', 'raw_fixtures_v1') }}
+WHERE match_status = 'FT'

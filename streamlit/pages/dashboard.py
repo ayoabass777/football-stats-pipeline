@@ -58,7 +58,18 @@ def main():
 
     selected_league = st.selectbox("Select League", leagues)
 
-    season_df = df.query("league == @selected_league")
+    season_df = df.query("league == @selected_league").copy()
+    
+    # 7) Drill‐down into a team
+    st.subheader("🔍 Drill into a Team")
+    team = st.selectbox("Select a team to explore", season_df.team_name)
+    team_url = f"./team_page?team={team.replace(' ', '%20')}"
+    st.markdown(
+        f'<a href="{team_url}" target="_self">'
+        f'<button style="background-color:#4CAF50;color:white;padding:10px 24px;border:none;cursor:pointer;">'
+        f'Go to Team Detail</button></a>',
+        unsafe_allow_html=True
+    )
 
     season_df["ppg"] = season_df.points / season_df.games_played
     season_df["gd"] = season_df.goals_for - season_df.goals_against
@@ -126,11 +137,6 @@ def main():
     st.subheader("📈 Distribution of Season Goals Scored")
     hist = season_df["goals_for"].value_counts().sort_index()
     st.bar_chart(hist)
-
-    # 7) Drill‐down into a team
-    st.subheader("🔍 Drill into a Team")
-    team = st.selectbox("Select a team to explore", season_df.team_name)
-    st.button("Go to Team Detail", on_click=lambda: st.experimental_set_query_params(team=team))
 
 
 
