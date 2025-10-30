@@ -34,6 +34,8 @@ dbt/football_pipeline/logs/
 
 #Local files
 LinkedIn/
+streamlit/
+frontend/
 logs/
 dim_fixtures.sql
 dim_teams.sql
