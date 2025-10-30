@@ -31,3 +31,21 @@ dbt/football_pipeline/logs/
 
 # macOS files
 .DS_Store
+
+#Local files
+LinkedIn/
+logs/
+dim_fixtures.sql
+dim_teams.sql
+EDA.ipynb
+extract_stats.py
+former_update_query.sql
+Not_null_raw_fixtures.sql
+raw_fixtures.sql
+raw_league_season.sql
+raw_schema.sql
+raw.raw_fixtures.sql
+to_update_ids.sql
+update_fixtures.sql
+updates_test_id.json
+updates_test.json
