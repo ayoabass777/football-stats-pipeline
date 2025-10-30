@@ -80,6 +80,8 @@ The dbt models handle all transformations from raw fixtures to analytics-ready m
 
 This model exposes team-level streak data used for analysis.
 
+![dbt layer](images/dbt_layer.png)
+
 ### ✅ Logic Overview:
 
 - Uses `LAG()` to detect when an event switches from false → true  
@@ -123,6 +125,7 @@ python src/load_fixtures.py
 # Airflow handles the recurring fixture update and dbt transformation
 ```
 ## 🧮 Example Output
+[Top Streaks](images/screenshot.png)
 
 
 ## 🚧 Roadmap
