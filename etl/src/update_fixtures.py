@@ -79,6 +79,7 @@ def update_played_fixtures(to_date: Optional[str] = None) -> List[Dict[str, Any]
     """
     start_total = time.time()
     logger.info("Starting update_played_fixtures")
+    updated_fixtures = []
     if to_date is None:
         to_date = date.today().isoformat()
     conn = get_db_connection()
@@ -90,17 +91,17 @@ def update_played_fixtures(to_date: Optional[str] = None) -> List[Dict[str, Any]
                 ls.league_season_id,
                 l.api_league_id,
                 ls.season,
-                MIN(rf.kickoff_utc)::date AS from_date
-            FROM raw.raw_fixtures srf
+                MIN(srf.kickoff_utc)::date AS from_date
+            FROM raw_stg.stg_raw_fixtures srf
             JOIN raw_stg.stg_dim_leagues l
                     ON srf.api_league_id = l.api_league_id
             JOIN raw_stg.stg_dim_league_seasons ls
               ON l.league_id = ls.league_id
-              AND AND ls.season = srf.season
+              AND ls.season = srf.season
             WHERE
-              rf.kickoff_utc < NOW() - INTERVAL '2 hour'
+              srf.kickoff_utc < NOW() - INTERVAL '2 hour'
               AND (srf.home_team_fulltime_goal IS NULL OR srf.away_team_fulltime_goal IS NULL)
-                And ls.is_current_season
+                And ls.is_current
             GROUP BY ls.league_season_id, l.api_league_id, ls.season
 
         """)
@@ -110,7 +111,7 @@ def update_played_fixtures(to_date: Optional[str] = None) -> List[Dict[str, Any]
             return 0
         logger.info(f"Found {len(to_update)} league-season groups to refresh")
 
-        updated_fixtures = []
+        
         # 2) For each league-season, fetch fixtures since the earliest missing date
         for league_season_id, api_league_id, season, from_date in to_update:
             # Fetch fixtures with built-in rate limiting
@@ -175,7 +176,7 @@ def update_played_fixtures(to_date: Optional[str] = None) -> List[Dict[str, Any]
 
     except Exception as e:
         logger.error(f"Error during update_played_fixtures: {e}", exc_info=True)
-        return 0
+        return []
 
     finally:
         conn.close()
@@ -279,12 +280,29 @@ def to_json(updated_fixtures: List[Dict[str, Any]], output_filename: str) -> Non
     return len(updated_fixtures)
 
 
+
+def update_fixtures_main(output_filename: Optional[str] = None) -> None:
+    """
+    Main function to update played fixtures and write updates to JSON.
+    """
+    try:
+        ids = to_update_fixture_ids()
+        updated_fixtures = update_by_ids(ids)
+        count = to_json(updated_fixtures, output_filename)
+        logger.info(f"update_fixtures_main finished: {count} updates applied.")
+    except Exception as e:
+        logger.error(f"Error in update_fixtures_main: {e}", exc_info=True)
+    
+    finally:
+        logger.info("update_fixtures_main completed.")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Fetch and write played fixture updates to JSON."
     )
     parser.add_argument(
-        "--ids",
+        "--earliest-kickoff",
         action="store_true",
         help="If set, update fixtures by specific IDs needing updates instead of by league-season."
     )
@@ -305,16 +323,14 @@ if __name__ == "__main__":
     logger.info("Invoking update_played_fixtures (output_file=%s, to_date=%s)",
                 args.output_file, args.to_date)
     try:
-        if args.ids:
-            ids = to_update_fixture_ids()
-            updated_fixtures = update_by_ids(ids)
-            count = to_json(updated_fixtures, output_filename=args.output_file)
-        else:
+        if args.earliest_kickoff:
             updated_fixtures = update_played_fixtures(
                 to_date=args.to_date
             )
-        count = to_json(updated_fixtures, output_filename=args.output_file)
+            
+        else:
+            update_fixtures_main(output_filename=args.output_file)
+            
         
-        logger.info("Script finished: %d updates applied", count)
     except KeyboardInterrupt:
         logger.warning("KeyboardInterrupt received: shutting down update_played_fixtures gracefully.")
