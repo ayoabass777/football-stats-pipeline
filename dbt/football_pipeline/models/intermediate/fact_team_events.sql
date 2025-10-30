@@ -7,14 +7,16 @@
 -- Explodes each team_fixture_stats row into event flags per fixture
 --------------------------------------------------------------------------------
 
-with base as (
-    select
+WITH base AS (
+    SELECT
         league_season_id,
         league_name,
         season,
         fixture_id,
         team_id,
         team_name,
+        opponent_id,
+        opponent_name,
         kickoff_utc,
         goals_for,
         goals_against,
@@ -25,32 +27,37 @@ with base as (
         is_home,
         is_current,
         is_played
-    from {{ ref('fact_team_fixtures') }}
-    where is_played
+    FROM {{ ref('fact_team_fixtures') }}
+    WHERE is_played
     {% if is_incremental() %}
-      and updated_at > (select max(updated_at) from {{ this }})
+      AND updated_at > (SELECT max(updated_at) FROM {{ this }})
     {% endif %}
 ),
 
-event_ind as (
-    select
+event_ind AS (
+    SELECT
         b.league_season_id,
         b.league_name,
         b.season,
         b.fixture_id,
         b.team_id,
         b.team_name,
+        b.opponent_id,
+        b.opponent_name,
         b.kickoff_utc,
+        b.goals_for,
+        b.goals_against,
+        b.fulltime_result,
         ev.event_name,
         ev.event_flag,
         ev.streak_type,
         b.is_home,
         b.is_current,
         b.is_played
-    from base b
-    cross join lateral (
-        select *
-        from (values
+    FROM base b
+    CROSS JOIN lateral (
+        SELECT *
+        FROM (VALUES
             ('score_1goal',        (b.goals_for >= 1)::int,   'goal_streaks'),
             ('score_2goals',       (b.goals_for >= 2)::int,   'goal_streaks'),
             ('score_3goals',       (b.goals_for >= 3)::int,   'goal_streaks'),
@@ -66,8 +73,8 @@ event_ind as (
             ('halftime_win',       (b.halftime_result = 'win')::int,            'special_streaks'),
             ('win_draw_over_1_5',  ((b.fulltime_result IN ('win','draw')) AND (b.goals_for + b.goals_against) > 1.5)::int,  'special_streaks'),
             ('win_draw_under_4_5', ((b.fulltime_result IN ('win','draw')) AND (b.goals_for + b.goals_against) < 4.5)::int,  'special_streaks')
-        ) as ev(event_name, event_flag, streak_type)
+        ) AS ev(event_name, event_flag, streak_type)
     ) ev
 )
 
-select * from event_ind
+SELECT * FROM event_ind
