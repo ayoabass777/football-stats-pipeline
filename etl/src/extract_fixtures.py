@@ -34,13 +34,28 @@ HEADERS = {
 FIXTURES_ENDPOINT = "fixtures"
 
 
+# 
+def mark_fixtures_bootstrap_done(cur: psycopg2.extensions.cursor, league_season_id: int) -> None:
+    """
+    Mark the fixtures_bootstrap_done flag as TRUE and set fixtures_bootstrap_at
+    for a given league_season_id. Transaction commit/rollback is handled by the caller.
+    """
+    cur.execute("""
+        UPDATE dim.dim_league_seasons
+        SET fixtures_bootstrap_done = TRUE,
+            fixtures_bootstrap_at = NOW()
+        WHERE league_season_id = %s
+    """, (league_season_id,))
+    logger.info(f"Marked fixtures_bootstrap_done=TRUE for league_season_id={league_season_id}")
+
+
 
 
 # Helper to check for required fixture fields
-def _validate_fixture(fixture: Dict[str, Any]) -> Tuple[List[str], Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
+def _validate_fixture(fixture: Dict[str, Any]) -> Tuple[List[str], Dict[str, Any], Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
     """
     Check that a fixture dict has the required sections.
-    Returns (missing_keys, fixture_data, teams_data, score_data).
+    Returns (missing_keys, fixture_data, teams_data, score_data, league_data).
     """
     fixture_data = fixture.get("fixture") or {}
     teams_data   = fixture.get("teams")   or {}
@@ -99,8 +114,18 @@ def _rate_limited_get(
         try:
             response = requests.get(f"{API_URL}{endpoint}", headers=HEADERS, params=params, timeout=10)
             # Enforce limits
-            daily_rem = int(response.headers.get('x-ratelimit-requests-remaining', 1))
-            min_rem   = int(response.headers.get('x-ratelimit-remaining', 1))
+            try:
+
+                daily_rem = int(response.headers.get('x-ratelimit-requests-remaining', 1))
+            except (TypeError, ValueError):
+                daily_rem = 1
+            
+            try:
+
+                min_rem   = int(response.headers.get('x-ratelimit-remaining', 1))
+            except (TypeError, ValueError):
+                min_rem = 1
+
             if daily_rem < 1:
                 # Sleep until next UTC day
                 daily_sleep_calculator()
@@ -117,7 +142,15 @@ def _rate_limited_get(
                 time.sleep(retry_after)
                 continue
             response.raise_for_status()
-            return response.json().get("response", [])
+            
+            try:
+                payload = response.json()
+            except ValueError:
+                logger.error(f"Failed to parse JSON response on attempt {attempt}/{max_retries}")
+                return []
+
+            return payload.get("response", [])
+        
         except (HTTPError, ConnectionError, Timeout) as e:
             logger.warning(f"Transient error on attempt {attempt}/{max_retries}: {e}. Retrying in {backoff}s")
             time.sleep(backoff)
@@ -153,28 +186,29 @@ def extract_fixtures_field(
     skip_count = 0
     extracted = []
 
-    for fixture in fixtures:
+    for i, fixture in enumerate(fixtures):
         missing, fixture_data, teams_data, score_data, league_data = _validate_fixture(fixture)
         fid = fixture_data.get("id", "unknown")
         league_id = league_data.get("id", "unknown")
         season = league_data.get("season", "unknown")
-        teams_names = (teams_data.get("home", {}).get("name"),teams_data.get("away", {}).get("name"))
+        home_name = teams_data.get("home", {}).get("name")
+        away_name = teams_data.get("away", {}).get("name")
         if missing:
-            logger.warning(f"Skipping fixture id={fid} for teams {teams_data}: missing {missing}")
+            logger.warning(f"Skipping fixture id={fid} ({home_name} vs {away_name}): missing {missing}")
             skip_count += 1
             continue
         # All required data present; build record
         try:
             extracted.append({
                 "api_fixture_id": fixture_data.get("id"),
-                "api_league_id": league_data.get("id"),
-                "season": league_data.get("season"),
+                "api_league_id": league_id,
+                "season": season,
                 "kickoff_utc": fixture_data.get("date"),
                 "fixture_status": fixture_data.get("status", {}).get("short", "NS"),
                 "home_team_id": teams_data.get("home", {}).get("id"),
-                "home_team_name": teams_data.get("home", {}).get("name"),
+                "home_team_name": home_name,
                 "away_team_id": teams_data.get("away", {}).get("id"),
-                "away_team_name": teams_data.get("away", {}).get("name"),
+                "away_team_name": away_name,
                 "home_team_halftime_goal": score_data.get("halftime", {}).get("home"),
                 "away_team_halftime_goal": score_data.get("halftime", {}).get("away"),
                 "home_team_fulltime_goal": score_data.get("fulltime", {}).get("home"),
@@ -185,11 +219,7 @@ def extract_fixtures_field(
             skip_count += 1
             continue
     if skip_count:
-        logger.info(
-            f"Skipped {skip_count} fixtures due to missing data or errors "
-            f"league_id= {league_id, season}"
-            f"teams names ={teams_names}"
-        )
+        logger.info(f"Skipped {skip_count} fixtures due to missing data or errors ")
     return extracted
 
 def save_fixture_data(
@@ -218,20 +248,22 @@ def save_fixture_data(
 
 def get_season_rows(
     cur: psycopg2.extensions.cursor
-) -> List[Tuple[str, str, int, int]]:
+) -> List[Tuple[str, str, int, int, int]]:
     """
     Fetch all league-season combinations from the database.
-    Returns a list of tuples (country_name, league_name, league_id, season_year).
+    Returns a list of tuples (country_name, league_name, api_league_id, season_year, league_season_id).
     """
     cur.execute("""
         SELECT
           c.country_name,
           l.league_name,
           l.api_league_id,
-          EXTRACT(YEAR FROM ls.start_date)::int AS season_year
+          EXTRACT(YEAR FROM ls.start_date)::int AS season_year,
+          ls.league_season_id
         FROM dim.dim_league_seasons ls
         JOIN dim.dim_leagues l ON ls.league_id = l.league_id
         JOIN dim.dim_countries c ON l.country_id = c.country_id
+        WHERE ls.fixtures_bootstrap_done = FALSE
     """)
     return cur.fetchall()
 
@@ -239,8 +271,11 @@ def extract_fixtures() -> Tuple[int, int]:
     """
     ETL for fixtures:
     - Reads api_league_id and season_year from dim tables
+    - check if fixtures_bootstrap_done is FALSE
     - Fetches fixtures from API
     - Transforms and saves to disk
+    - Logs progress and errors
+
     """
     total_extracted = 0
     total_failed_leagues = 0
@@ -254,7 +289,11 @@ def extract_fixtures() -> Tuple[int, int]:
     try:
         # Query each league-season combination
         rows = get_season_rows(cur)
-        for country_name, league_name, api_league_id, season_year in rows:
+        if not rows:
+            logger.info("No new league-seasons found for fixture extraction.")
+            return total_extracted, total_failed_leagues
+        
+        for country_name, league_name, api_league_id, season_year, league_season_id in rows:
             logger.info(f"Processing fixtures for {league_name} season {season_year}")
             try:
                 # Fetch fixtures with timing
@@ -276,10 +315,15 @@ def extract_fixtures() -> Tuple[int, int]:
                 # Save fixtures with timing
                 start_save = time.time()
                 save_fixture_data(country_name, league_name, season_year, extracted)
+                mark_fixtures_bootstrap_done(cur, league_season_id)
+                conn.commit()
+
                 save_elapsed = time.time() - start_save
                 logger.info(f"Saved {len(extracted)} fixtures for {league_name} ({season_year}) in {save_elapsed:.2f}s")
                 total_extracted += len(extracted)
+
             except (RequestException, psycopg2.Error) as e:
+                conn.rollback()
                 logger.error(f"Network/DB error for {league_name} ({season_year}): {e}", exc_info=True)
                 total_failed_leagues += 1
                 continue
