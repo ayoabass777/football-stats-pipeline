@@ -1,11 +1,12 @@
 """
 Module to load cleaned fixtures data into the PostgreSQL `raw.raw_fixtures` table using psycopg2 bulk COPY.
-- Archives existing raw data to raw.raw_fixtures_archive
-- Truncates raw.raw_fixtures
+- Appends new rows with optional batching
+- Avoids truncating or archiving existing content by default
 - Streams new data via COPY for high-performance bulk insert
 """
 import os
 import time
+from typing import Optional
 import etl.src.config as config
 from etl.src.logger import get_logger
 import pandas as pd
@@ -22,7 +23,9 @@ DB_CONFIG = config.DB_CONFIG
 
 def load_to_db(
     parquet_file: str,
-    table_name: str = "raw_fixtures"
+    table_name: str = "raw_fixtures",
+    if_exists: str = "replace",
+    batch_size: Optional[int] = None
 ) -> None:
     """
     Load cleaned fixtures from a Parquet file into a PostgreSQL table.
@@ -31,9 +34,8 @@ def load_to_db(
     - Reads the specified Parquet file into a pandas DataFrame.
     - Connects to Postgres via psycopg2 using DB_CONFIG.
     - Ensures the 'raw' schema exists.
-    - Archives existing data into raw.<table_name>_archive.
-    - Truncates the target table.
-    - Uses Postgres COPY to bulk-load the DataFrame.
+    - Appends or replaces data in raw.<table_name> based on `if_exists`.
+    - Uses Postgres COPY to bulk-load the DataFrame, optionally in batches.
 
     Parameters
     ----------
@@ -42,12 +44,14 @@ def load_to_db(
     table_name : str, optional
         Name of the target table under the 'raw' schema (default: "raw_fixtures").
     if_exists : str, optional
-        Placeholder parameter to match API; currently ignored (default: "append").
+        Whether to 'append' (default) or 'replace' existing rows in the target table.
+    batch_size : int, optional
+        Number of rows per COPY batch. Defaults to loading in a single batch.
 
     Raises
     ------
     ValueError
-        If `parquet_file` is None.
+        If `parquet_file` is None or `if_exists` has an unsupported value.
     OSError
         If reading or serializing the file fails.
     psycopg2.Error
@@ -56,6 +60,9 @@ def load_to_db(
     start_time = time.time()
     if parquet_file is None:
         raise ValueError("parquet_file must be provided")
+
+    if if_exists not in {"append", "replace"}:
+        raise ValueError("if_exists must be either 'append' or 'replace'")
 
     if not os.path.isfile(parquet_file):
         raise FileNotFoundError(f"Parquet file not found: {parquet_file}")
@@ -72,7 +79,7 @@ def load_to_db(
         # 3a) Ensure schema exists
         cur.execute(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA};")
 
-        # 3b) Archive + truncate if table exists
+        # 3b) Handle existing table strategy
         cur.execute(
             "SELECT EXISTS ("
             "  SELECT 1 FROM information_schema.tables "
@@ -81,27 +88,44 @@ def load_to_db(
             (SCHEMA, table_name)
         )
         exists = cur.fetchone()[0]
-        if exists:
+        if exists and if_exists == "replace":
             archive_table = f"{SCHEMA}.{table_name}_archive"
             cur.execute(f"DROP TABLE IF EXISTS {archive_table};")
             cur.execute(f"CREATE TABLE {archive_table} AS TABLE {SCHEMA}.{table_name};")
             logger.info(f"Archived raw data to {archive_table}")
             cur.execute(f"TRUNCATE TABLE {SCHEMA}.{table_name};")
             logger.info(f"Truncated table {SCHEMA}.{table_name}")
+        elif exists:
+            logger.info(f"Appending new rows to existing table {SCHEMA}.{table_name}")
         else:
-            logger.info(f"Table {SCHEMA}.{table_name} does not exist, creating new")
+            logger.info(
+                f"Table {SCHEMA}.{table_name} does not exist; ensure it is created before loading."
+            )
+
+        total_rows = len(df)
+        if total_rows == 0:
+            logger.info("No rows to load; skipping COPY execution.")
+            return
 
         # 3c) Bulk load via COPY with timing
-        buffer = StringIO()
-        df.to_csv(buffer, index=False, header=True)
-        buffer.seek(0)
-        columns = ', '.join(df.columns)
+        formatted_columns = ', '.join(f'"{col}"' for col in df.columns)
         copy_sql = (
-            f"COPY {SCHEMA}.{table_name} ({columns}) "
-            "FROM STDIN WITH CSV HEADER"
+            f"COPY {SCHEMA}.{table_name} ({formatted_columns}) "
+            "FROM STDIN WITH CSV"
         )
+        if batch_size is None or batch_size <= 0:
+            batch_size = total_rows
+        num_batches = (total_rows + batch_size - 1) // batch_size
         start_copy = time.time()
-        cur.copy_expert(copy_sql, buffer)
+        for batch_index, start in enumerate(range(0, total_rows, batch_size), start=1):
+            chunk = df.iloc[start:start + batch_size]
+            buffer = StringIO()
+            chunk.to_csv(buffer, index=False, header=False)
+            buffer.seek(0)
+            cur.copy_expert(copy_sql, buffer)
+            logger.info(
+                f"Batch {batch_index}/{num_batches}: loaded {len(chunk)} rows into {SCHEMA}.{table_name}"
+            )
         conn.commit()
         logger.info(f"Loaded {len(df)} rows into {SCHEMA}.{table_name} via COPY in {time.time() - start_copy:.2f}s")
         total_elapsed = time.time() - start_time
@@ -119,7 +143,7 @@ def load_to_db(
 
 if __name__ == "__main__":
     try:
-        default_file = os.path.join(config.BASE_DATA_DIR, "cleaned_fixtures.parquet")
+        default_file = os.path.join(config.BASE_DATA_DIR, "cleaned_data/cleaned_fixtures_full_20251030_091633.parquet")
         load_to_db(default_file)
     except KeyboardInterrupt:
         logger.warning("KeyboardInterrupt received: shutting down load_to_db gracefully.")
