@@ -1,3 +1,2 @@
 # airflow is using python 3.8 and only 3.9+ has zoneinfo module
-backports.zoneinfo
 apache-airflow-providers-docker
