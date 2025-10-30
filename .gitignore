@@ -33,7 +33,7 @@ dbt/football_pipeline/logs/
 .DS_Store
 
 #Local files
-LinkedIn/
+Linkedln/
 streamlit/
 frontend/
 logs/
